@@ -1,0 +1,32 @@
+{
+  "author": "Tom Cully",
+  "name": "Mozart",
+  "description": "A CoffeeScript MVC framework",
+  "version": "0.1.7",
+  "homepage": "http://mozart.io",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:bigcommerce/mozart.git"
+  },
+  "scripts": {
+    "start": "./node_modules/grunt-cli/bin/grunt run",
+    "test": "./node_modules/grunt-cli/bin/grunt test"
+  },
+  "dependencies": {
+    "handlebars": "1.0.x",
+    "messageformat": "0.1.x"
+  },
+  "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-cli": "0.1.x",
+    "coffee-script": "1.4.x",
+    "underscore": "1.4.x",
+    "underscore.string": "2.3.x",
+    "grunt-contrib-coffee": "0.4.x",
+    "grunt-contrib-handlebars": "0.5.x",
+    "grunt-contrib-jasmine": "0.4.x",
+    "grunt-contrib-uglify": "0.1.x",
+    "grunt-lib-legacyhelpers": "0.1.x",
+    "browserify": "1.16.x"
+  }
+}
