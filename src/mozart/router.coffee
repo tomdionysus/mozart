@@ -10,7 +10,7 @@ exports.Router = class Router extends MztObject
   start: =>
     if (@useHashRouting)
       $(window).bind('hashchange',@onHashChange)
-      @navigateRoute(window.location.hash)
+      @onHashChange()
     else
       $('body').on("click", 'a', @onNavigationEvent)
       $(window).on("popstate", @onPopState)
@@ -45,7 +45,7 @@ exports.Router = class Router extends MztObject
 
   onHashChange: =>
     url = window.location.hash
-    url = url.substr(1) if url.length>0
+    url = url.substr(1) if url.length>0 and url[0]=='#'
     @navigateRoute(url)
 
   onNavigationEvent: (event) =>
