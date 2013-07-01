@@ -78,6 +78,12 @@ module.exports = function (grunt) {
                     'mozart.min.js' : [ 'mozart.js' ]
                 }
             }
+        },
+
+        writeversion: {
+            dist: {
+                output: 'VERSION',
+            }
         }
     });
 
@@ -85,7 +91,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build', ['browserify', 'coffee', 'handlebars']);
 
     // Package for production.
-    grunt.registerTask('package', ['build', 'uglify']);
+    grunt.registerTask('package', ['build', 'uglify', 'writeversion']);
 
     // Tests
     grunt.registerTask('test', ['build','jasmine']);
