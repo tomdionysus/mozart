@@ -14,9 +14,7 @@ exports.Router = class Router extends MztObject
     else
       $('body').on("click", 'a', @onNavigationEvent)
       $(window).on("popstate", @onPopState)
-      
-      # Hideous. Firefox doesn't raise popstate on page load.
-      @onPopState() if (navigator.userAgent.indexOf("Firefox")!=-1)
+      @onPopState()
 
   stop: =>
     if (@useHashRouting)
