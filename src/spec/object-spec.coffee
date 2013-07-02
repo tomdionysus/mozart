@@ -203,7 +203,7 @@ describe 'Mozart.MztObject', ->
         expect(Spec.personController._bindings.observe.subject).toBeDefined()
         expect(Spec.personController._bindings.observe.person).toBeUndefined()
         expect(Spec.personController._bindings.observe.subject.length).toEqual(1)
-        expect(Spec.personController._bindings.observe.subject[0]).toEqual({attr:'person', source: @view, transferable: true})
+        expect(Spec.personController._bindings.observe.subject[0]).toEqual({attr:'person', target: @view, transferable: true})
 
       it "should add the binding to the internal map when non-transferable", ->
         @cheston = Mozart.MztObject.create
@@ -223,7 +223,7 @@ describe 'Mozart.MztObject', ->
         expect(@cheston._bindings.observe.name).toBeDefined()
         expect(@cheston._bindings.observe.person).toBeUndefined()
         expect(@cheston._bindings.observe.name.length).toEqual(1)
-        expect(@cheston._bindings.observe.name[0]).toEqual({attr:'person', source: @view, transferable: false})
+        expect(@cheston._bindings.observe.name[0]).toEqual({attr:'person', target: @view, transferable: false})
 
       it "should change target on set", ->
         @view = Mozart.MztObject.create
@@ -289,7 +289,7 @@ describe 'Mozart.MztObject', ->
         expect(@view._bindings.observe.person).toBeDefined()
         expect(@view._bindings.observe.subject).toBeUndefined()
         expect(@view._bindings.observe.person.length).toEqual(1)
-        expect(@view._bindings.observe.person[0]).toEqual({attr:'subject', source: Spec.personController, transferable: true})
+        expect(@view._bindings.observe.person[0]).toEqual({attr:'subject', target: Spec.personController, transferable: true})
 
       it 'should add the binding to the internal map of the target when non-transferable', ->
         @john = Mozart.MztObject.create
@@ -309,7 +309,7 @@ describe 'Mozart.MztObject', ->
         expect(@view._bindings.observe.person).toBeDefined()
         expect(@view._bindings.observe.subject).toBeUndefined()
         expect(@view._bindings.observe.person.length).toEqual(1)
-        expect(@view._bindings.observe.person[0]).toEqual({attr:'subject', source: @john, transferable: false})
+        expect(@view._bindings.observe.person[0]).toEqual({attr:'subject', target: @john, transferable: false})
 
       it "should change target on set", ->
         @view = Mozart.MztObject.create
@@ -366,7 +366,7 @@ describe 'Mozart.MztObject', ->
 
     describe "Sync Bindings", ->
 
-      it 'should add the binding to the internal map of both the source and the target', ->
+      it 'should add the binding to the internal map of both the target and the target', ->
         @view = Mozart.MztObject.create
           personBinding: 'Spec.personController.subject'
 
@@ -562,10 +562,31 @@ describe 'Mozart.MztObject', ->
         expect(@objA2.parentName).toEqual('Cheston')
         expect(@objB2.parentName).toEqual('Ginger')
 
+    describe "Binding removal", ->
+      it "should remove the correct binding when an object is released", ->
 
+        Mozart.root = window
 
+        window.trace = true
 
+        Test.controller = Mozart.MztObject.create
+          subject: 'one'
 
+        y = Mozart.MztObject.create
+          testObserveBinding: 'Test.controller.subject'
 
+        z = Mozart.MztObject.create
+          testObserveBinding: 'Test.controller.subject'
 
+        Test.controller.set('subject', 'two')
+        expect(y.test).toEqual('two')
+        expect(z.test).toEqual('two')
 
+        #y._removeBinding('subject', Test.controller, 'subject', Mozart.MztObject.OBSERVE)
+        y.release()
+
+        Test.controller.set('subject', 'three')
+
+        expect(z.test).toEqual('three')
+
+        window.trace = false

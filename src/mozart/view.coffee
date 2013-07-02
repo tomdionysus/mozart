@@ -116,6 +116,7 @@ exports.View = class View extends MztObject
     @unbind()
     @parent.removeView(@) if @parent?
     @releaseChildren()
+    @element.remove() if @element?
     @layout.releaseView(@)
     super
 

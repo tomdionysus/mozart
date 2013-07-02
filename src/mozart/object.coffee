@@ -121,9 +121,9 @@ exports.MztObject = class MztObject
   # Private Methods
   _stripNotifyBindings: (transferOnly = false) ->
     bindings = {}
-    for key, bindings of @_bindings.notify
+    for key, cbindings of @_bindings.notify
       bindings[key] = []
-      for binding in bindings when (!transferOnly or binding.transferable)
+      for binding in cbindings when (!transferOnly or binding.transferable)
         bindings[key].push binding
         @_removeBinding(key, binding.target, binding.attr, MztObject.NOTIFY)
     bindings
@@ -135,17 +135,17 @@ exports.MztObject = class MztObject
 
   _stripObserveBindings: (transferOnly = false)  ->
     bindings = {}
-    for key, bindings of @_bindings.observe
+    for key, cbindings of @_bindings.observe
       bindings[key] = []
-      for binding in bindings when (!transferOnly or binding.transferable)
+      for binding in cbindings when (!transferOnly or binding.transferable)
         bindings[key].push binding
-        @_removeBinding(key, binding.source, binding.attr, MztObject.OBSERVE, binding.transferable)
+        @_removeBinding(key, binding.target, binding.attr, MztObject.OBSERVE)
     bindings
 
   _addObserveBindings: (bindingset) ->
     for key, bindings of bindingset
       for binding in bindings
-        @_createBinding(key, binding.source, binding.attr, MztObject.OBSERVE, binding.transferable)
+        @_createBinding(key, binding.target, binding.attr, MztObject.OBSERVE, binding.transferable)
 
   _createDeclaredBinds: ->
     for key, v of @ when !Util.isFunction(@[key]) and Util.stringEndsWith(key, "Binding")
@@ -166,20 +166,39 @@ exports.MztObject = class MztObject
 
       @_createBinding(key, obj, attr, type, Util.isAbsolutePath(v))
 
+  _hasNotifyBinding: (property, target, targetProperty, type) ->
+    return false unless @_bindings.notify[property]?
+    for binding in @_bindings.notify[property]
+      return true if binding.attr==targetProperty and binding.target._mozartId==target._mozartId
+    return false
+
+  _hasObserveBinding: (property, target, targetProperty, type) ->
+    return false unless @_bindings.observe[property]?
+    for binding in @_bindings.observe[property]
+      return true if binding.attr==targetProperty and binding.target._mozartId==target._mozartId
+    return false
+
   _createBinding: (property, target, targetProperty, type, transferable) ->
     switch type
+      
       when MztObject.NOTIFY
+        return if @_hasNotifyBinding(property, target, targetProperty, type)
         @_bindings.notify[property] ?= []
         @_bindings.notify[property].push({attr:targetProperty, target: target, transferable: transferable})
         if target instanceof MztObject
-          target._bindings.observe[targetProperty] ?= []
-          target._bindings.observe[targetProperty].push({attr:property, source: @, transferable: transferable})
+          target._createBinding(targetProperty, @, property, MztObject.OBSERVE, transferable)
         @_doNotifyBinding(property)
+
       when MztObject.OBSERVE
-        if target instanceof MztObject
-          target._createBinding(targetProperty, @, property, MztObject.NOTIFY, transferable)
-        else
-          console.warn "Binding #{property}ObserveBinding on",@,": target",target,"is not a MztObject"
+        return if @_hasObserveBinding(property, target, targetProperty, type)
+        unless target instanceof MztObject
+          Util.warn "Binding #{property}ObserveBinding on",@,": target",target,"is not a MztObject"
+          return
+
+        @_bindings.observe[property] ?= []
+        @_bindings.observe[property].push({attr:targetProperty, target: target, transferable: transferable})
+        target._createBinding(targetProperty, @, property, MztObject.NOTIFY, transferable)
+          
       when MztObject.SYNC
         @_createBinding(property, target, targetProperty, MztObject.OBSERVE, transferable)
         @_createBinding(property, target, targetProperty, MztObject.NOTIFY, transferable)
@@ -187,24 +206,36 @@ exports.MztObject = class MztObject
   _removeBinding: (property, target, targetProperty, type) ->
     switch type
       when MztObject.NOTIFY
-        bindingset = {}
-        for key, bindings of @_bindings.notify
-          for binding in bindings
-            if binding.attr!=targetProperty and binding.target!=target
-              bindingset[key] ?= []
-              bindingset[key].push binding
-        @_bindings.notify = bindingset
+        return unless @_hasNotifyBinding(property, target, targetProperty)
+
+        bindingset = []
+
+        for binding in @_bindings.notify[property]
+          bindingset.push binding unless binding.attr==targetProperty and binding.target._mozartId==target._mozartId
+ 
+        unless bindingset.length == 0
+          @_bindings.notify[property] = bindingset
+        else
+          delete @_bindings.notify[property]
+
         if target instanceof MztObject
-          bindingset = {}
-          for key, bindings of target._bindings.observe
-            for binding in bindings
-              if binding.attr!=property and binding.source!=@
-                bindingset[key] ?= []
-                bindingset[key].push binding
-          target._bindings.observe = bindingset
+          target._removeBinding(targetProperty, @, property, MztObject.OBSERVE)
+
       when MztObject.OBSERVE
+        return unless @_hasObserveBinding(property, target, targetProperty)
+        
+        bindingset = []
+        for binding in @_bindings.observe[property]
+          bindingset.push binding unless binding.attr==targetProperty and binding.target._mozartId==target._mozartId
+          
+        unless bindingset.length == 0
+          @_bindings.observe[property] = bindingset
+        else
+          delete @_bindings.observe[property]
+
         if target instanceof MztObject
-          target._removeBinding(targetProperty, @, property, MztObject.NOTIFY)          
+          target._removeBinding(targetProperty, @, property, MztObject.NOTIFY)
+
       when MztObject.SYNC
         @_removeBinding(property, target, targetProperty, MztObject.NOTIFY)
         @_removeBinding(property, target, targetProperty, MztObject.OBSERVE)
