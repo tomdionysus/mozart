@@ -164,7 +164,7 @@ describe 'Mozart.View', ->
     expect(@view.get('customer')).toEqual(@tom)
 
   describe 'Auto Actions', ->
-    it "should define and call an auto action targetting a controller", ->
+    it "should define and call an auto action targeting a controller", ->
 
       @SpecTest.testController = Mozart.MztObject.create
         testMethod: (view, d) =>
@@ -183,7 +183,7 @@ describe 'Mozart.View', ->
 
       expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
 
-    it "should define and call an auto action targetting the parent view", ->
+    it "should define and call an auto action targeting the parent view", ->
 
       class SpecTest.ParentTestView extends Mozart.View
         templateFunction: SpecTest.simpleViewFunction
