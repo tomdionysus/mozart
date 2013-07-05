@@ -1,12 +1,14 @@
 # Mozart - A Clientside MVC Framework in CoffeeScript
 
-*Version 0.1.8, 1 July 2013*
+*Version 0.1.9, 1 August 2013*
 
 [![Build Status](https://secure.travis-ci.org/bigcommerce/mozart.png?branch=master)](http://travis-ci.org/bigcommerce/mozart)
 
 Please see http://mozart.io for documentation, examples etc.
 
 # Changelog
+
+## 0.1.9
 
 ## 0.1.8
 
