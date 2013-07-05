@@ -10,6 +10,8 @@ Please see http://mozart.io for documentation, examples etc.
 
 ## 0.1.9
 
+* Declarative View Actions (/name/Action)
+
 ## 0.1.8
 
 * HTTP CORS Support

@@ -5,6 +5,7 @@ exports.View = class View extends MztObject
 
   tag: 'div'
   disableHtmlAttributes: false
+  disableAutoActions: false
   idPrefix: 'view'
 
   init: =>
@@ -26,6 +27,8 @@ exports.View = class View extends MztObject
     Util.log('views',"view #{@id} init")
 
     @subscribe('change:display', @redraw)
+
+    @createAutoActions() unless @disableAutoActions
 
   prepareElement: =>
     return if @released
@@ -166,3 +169,17 @@ exports.View = class View extends MztObject
     for bindId, binding of @domBindings when binding.element is not null
       binding.target.unsubscribe 'change:'+binding.attribute, @onDomBindChange
     @domBindings = {}
+
+  createAutoActions: =>
+    for key, value of @ when Mozart.isString(key) and Mozart.stringEndsWith(key,'Action')
+
+      [target, method] = Mozart.parsePath(value)
+      if target?
+        target = Mozart.getPath(@parent,target)
+      else
+        target = @parent
+
+      actionName = Mozart.sliceStringBefore(key, 'Action')
+      @bind(actionName, (args) => 
+        target[method](@,args,actionName)
+      )

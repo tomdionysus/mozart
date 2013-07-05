@@ -163,5 +163,65 @@ describe 'Mozart.View', ->
     @SpecTest.customerController.set('customer',@john)
     expect(@view.get('customer')).toEqual(@tom)
 
+  describe 'Auto Actions', ->
+    it "should define and call an auto action", ->
 
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+          expect(view).toEqual(@view)
+          expect(d).toEqual({one:1})
 
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @view.trigger('testEvent', {one:1})
+
+      expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
+
+    it "should define and call an auto action on two views", ->
+
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+          expect(view).toEqual(@SpecTest.testController.expectedView)
+
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+
+      @view2 = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @SpecTest.testController.expectedView = @view
+      @view.trigger('testEvent')
+      expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
+
+      @SpecTest.testController.expectedView = @view2
+      @view2.trigger('testEvent')
+      expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
+
+    it "should not call an auto action when disabled", ->
+
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+        disableAutoActions: true
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @view.trigger('testEvent', {one:1})
+
+      expect(tm).not.toHaveBeenCalled()
