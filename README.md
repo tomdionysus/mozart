@@ -11,6 +11,7 @@ Please see http://mozart.io for documentation, examples etc.
 ## 0.1.8
 
 * HTTP CORS Support
+* Binding, Routing Bugfixes
 
 ## 0.1.7
 
