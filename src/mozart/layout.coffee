@@ -106,7 +106,7 @@ exports.Layout = class Layout extends Router
     @releaseMap = {}
 
     Util.log('layout',"#{@_mozartId} render finished")
-    @trigger 'render:complete'
+    @publish 'render:complete'
 
   release: =>
     @releaseViews()

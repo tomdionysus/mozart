@@ -105,7 +105,7 @@ describe 'Mozart.LocalStorage', ->
 
     it 'should load all from localStorage on model loadAllLocalStorage', ->
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
       Test.LocalStorage.Customer.loadAllLocalStorage()
 
       expect(Test.LocalStorage.subcaller.onChange).toHaveBeenCalled()
@@ -122,8 +122,8 @@ describe 'Mozart.LocalStorage', ->
     it 'should load data from localStorage on loadLocalStorageId', ->
       spyOn(Test.LocalStorage.subcaller,'onLoad')
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('loadLocalStorageComplete', Test.LocalStorage.subcaller.onLoad)
-      Test.LocalStorage.Customer.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('loadLocalStorageComplete', Test.LocalStorage.subcaller.onLoad)
+      Test.LocalStorage.Customer.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
 
       Test.LocalStorage.Customer.loadLocalStorageId(7732)
 
@@ -138,8 +138,8 @@ describe 'Mozart.LocalStorage', ->
       Test.LocalStorage.Customer.registerLocalStorageId(Test.LocalStorage.tom.id, 2346)
       spyOn(Test.LocalStorage.subcaller,'onLoad')
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('loadLocalStorageComplete', Test.LocalStorage.subcaller.onLoad)
-      Test.LocalStorage.tom.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('loadLocalStorageComplete', Test.LocalStorage.subcaller.onLoad)
+      Test.LocalStorage.tom.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
       Test.LocalStorage.tom.loadLocalStorage()
 
       expect(Test.LocalStorage.subcaller.onLoad).toHaveBeenCalled()
@@ -150,8 +150,8 @@ describe 'Mozart.LocalStorage', ->
     it 'should post data to localStorage on save when instance isn\'t registered', ->
       spyOn(Test.LocalStorage.subcaller,'onCreate')
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('createLocalStorageComplete', Test.LocalStorage.subcaller.onCreate)
-      Test.LocalStorage.Customer.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('createLocalStorageComplete', Test.LocalStorage.subcaller.onCreate)
+      Test.LocalStorage.Customer.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
       Test.LocalStorage.jason.save()
 
       expect(Test.LocalStorage.subcaller.onCreate).toHaveBeenCalled()
@@ -162,10 +162,10 @@ describe 'Mozart.LocalStorage', ->
     it 'should put data to localStorage on save', ->
       spyOn(Test.LocalStorage.subcaller,'onUpdate')
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('updateLocalStorageComplete', Test.LocalStorage.subcaller.onUpdate)
+      Test.LocalStorage.Customer.subscribeOnce('updateLocalStorageComplete', Test.LocalStorage.subcaller.onUpdate)
       Test.LocalStorage.tom.set('name','Thomas Hugh Cully')
       Test.LocalStorage.tom.save()
-      Test.LocalStorage.Customer.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
 
       expect(Test.LocalStorage.subcaller.onUpdate).toHaveBeenCalledWith(Test.LocalStorage.tom, undefined)
       expect(Test.LocalStorage.subcaller.onChange).not.toHaveBeenCalled()
@@ -173,9 +173,9 @@ describe 'Mozart.LocalStorage', ->
     it 'should destroy on localStorage and unregister on destroy', ->
       spyOn(Test.LocalStorage.subcaller,'onDestroy')
       spyOn(Test.LocalStorage.subcaller,'onChange')
-      Test.LocalStorage.Customer.one('destroyLocalStorageComplete', Test.LocalStorage.subcaller.onDestroy)
+      Test.LocalStorage.Customer.subscribeOnce('destroyLocalStorageComplete', Test.LocalStorage.subcaller.onDestroy)
       Test.LocalStorage.tom.destroy()
-      Test.LocalStorage.Customer.one('change', Test.LocalStorage.subcaller.onChange)
+      Test.LocalStorage.Customer.subscribeOnce('change', Test.LocalStorage.subcaller.onChange)
 
       expect(Test.LocalStorage.subcaller.onDestroy).toHaveBeenCalledWith(Test.LocalStorage.tomId, undefined)
       expect(Test.LocalStorage.Customer.getLocalStorageClientId(Test.LocalStorage.tomId)).not.toBeDefined()

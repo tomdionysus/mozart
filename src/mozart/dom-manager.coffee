@@ -77,7 +77,7 @@ exports.DOMManager = class DOMManager extends MztObject
     super
 
   onApplicationEvent: (event) =>
-    @trigger event.data.eventName, event
+    @publish event.data.eventName, event
 
   onViewEvent: (event) =>
     @checkClickInside(event)
@@ -90,7 +90,7 @@ exports.DOMManager = class DOMManager extends MztObject
       view = layout.views[ele.id]
       if view? 
         methodName = viewEventMap[event.type]
-        @trigger "viewEvent", event, view  
+        @publish "viewEvent", event, view  
         if typeof (view[methodName]) == 'function'
           Util.log('events',methodName,'on',view,'(',event,')')
           view[methodName](event,view)
@@ -111,7 +111,7 @@ exports.DOMManager = class DOMManager extends MztObject
         if typeof (control.view[control.action]) == 'function'
           Util.log 'events','method', control.action,'on',control.view,'(',event,')'
           Util.log 'controls','action on control', control, event
-          @trigger "controlEvent", event, control 
+          @publish "controlEvent", event, control 
           control.view[control.action](ele, @getControlOptionsValues(control.view, control.options), event)
           event.preventDefault() unless control.allowDefault 
         else 

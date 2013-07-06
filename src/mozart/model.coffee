@@ -99,7 +99,7 @@ exports.Model = class Model extends MztObject
         inst.set(fkname,null)
         inst.save()
 
-    model.bind('destroy', onDelete)
+    model.subscribe('destroy', onDelete)
 
   # hasOne - General use hasOne relation. The foreign key exists on the supplied
   # model and points to this the declaring model. Only a single record in the other
@@ -125,8 +125,8 @@ exports.Model = class Model extends MztObject
         return if value == null
         value.set(fkname, @id)
         value.save()
-        @trigger('change:'+attribute)
-        @trigger('change')
+        @publish('change:'+attribute)
+        @publish('change')
       else
         # getting
         l = model.findByAttribute(fkname, @id)
@@ -140,7 +140,7 @@ exports.Model = class Model extends MztObject
         inst.set(fkname,null)
         inst.save()
 
-    @bind('destroy', onDelete)
+    @subscribe('destroy', onDelete)
     
   # belongsToPoly - Polymorphic belongsTo. The foreign key and type exist on
   # this the declaring model and point to the other model when the
@@ -195,7 +195,7 @@ exports.Model = class Model extends MztObject
         inst.save(options)
 
     for model in models
-      model.bind('destroy', onDelete)
+      model.subscribe('destroy', onDelete)
 
   # hasMany - A general use hasMany relation where the foreign key
   # exists on the other model and points to this the declaring model
@@ -239,7 +239,7 @@ exports.Model = class Model extends MztObject
         inst.set(fkname,null)
         inst.save(options)
 
-    @bind('destroy', onDelete)
+    @subscribe('destroy', onDelete)
 
   # hasManyPoly - A polymorphic hasMany relation where the foreign key and type
   # exist on the other model and points to this the declaring model when 
@@ -288,7 +288,7 @@ exports.Model = class Model extends MztObject
         inst.set(thatTypeAttr,null)
         inst.save(options)
 
-    @bind('destroy', onDeleteF)
+    @subscribe('destroy', onDeleteF)
 
   # hasManyThrough is a general use many to many relation using a linktable
   # where the foreign keys on both sides exist on an intermediate link model.
@@ -333,12 +333,12 @@ exports.Model = class Model extends MztObject
     onDeleteF = (instance, options={}) ->
       for link in linkModel.findByAttribute(thisFkAttr, instance.id)
         link.destroy(options)
-    @bind('destroy', onDeleteF)
+    @subscribe('destroy', onDeleteF)
     
     onDeleteB = (instance, options={}) ->
       for link in linkModel.findByAttribute(thatFkAttr, instance.id)
         link.destroy(options)
-    model.bind('destroy', onDeleteB)
+    model.subscribe('destroy', onDeleteB)
 
   # hasManyThroughPoly is a polymorphic many-to-many relation where both foreign 
   # keys and the type exist on a linkmodel.
@@ -391,7 +391,7 @@ exports.Model = class Model extends MztObject
       query[thisFkAttr] = instance.id
       for link in linkModel.findByAttributes query
         link.destroy(options)
-    @bind('destroy', onDeleteF)
+    @subscribe('destroy', onDeleteF)
     
     onDeleteB = (instance, options={}) ->
       query = {}
@@ -399,7 +399,7 @@ exports.Model = class Model extends MztObject
       query[thatTypeAttr] = instance.modelClass.modelName
       for link in linkModel.findByAttributes query
         link.destroy(options)
-    model.bind('destroy', onDeleteB)
+    model.subscribe('destroy', onDeleteB)
 
   # hasManyThroughPolyReverse is a polymorphic many-to-many relation where both foreign 
   # keys and the type exist on a linkmodel.
@@ -531,7 +531,7 @@ exports.Model = class Model extends MztObject
     inst
 
   loadInstance: (instance, options={}) =>
-    @trigger 'load', instance
+    @publish 'load', instance
 
   createInstance: (instance, options={}) =>
     id = instance.id
@@ -539,13 +539,13 @@ exports.Model = class Model extends MztObject
       Util.error "createInstance: ID Already Exists",'collection',"model",@name,"id",id
     @records[id] = instance
     @addToIndexes(instance)
-    @trigger 'create', instance, options unless options.disableModelCreateEvent
-    @trigger 'change', instance, options unless options.disableModelChangeEvent
+    @publish 'create', instance, options unless options.disableModelCreateEvent
+    @publish 'change', instance, options unless options.disableModelChangeEvent
     instance
 
   updateInstance: (instance, options={}) =>
-    @trigger 'update', instance, options unless options.disableModelUpdateEvent
-    @trigger 'change', instance, options unless options.disableModelChangeEvent
+    @publish 'update', instance, options unless options.disableModelUpdateEvent
+    @publish 'change', instance, options unless options.disableModelChangeEvent
     id = instance.id
     unless @exists(id)
       Util.error "updateInstance: ID does not exist",'collection',"model",@name,"id",id
@@ -556,8 +556,8 @@ exports.Model = class Model extends MztObject
       Util.error "destroyInstance: ID does not exist",'collection',"model",@name,"id",id
     delete @records[instance.id]
     instance.modelClass.removeFromIndexes(instance)
-    @trigger 'destroy', instance, options unless options.disableModelDestroyEvent
-    @trigger 'change', instance, options unless options.disableModelChangeEvent
+    @publish 'destroy', instance, options unless options.disableModelDestroyEvent
+    @publish 'change', instance, options unless options.disableModelChangeEvent
 
   # INTERNAL Helpers
 

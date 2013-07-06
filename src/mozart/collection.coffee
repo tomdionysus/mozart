@@ -16,27 +16,27 @@ exports.Collection = class Collection extends View
     @localMozartInstanceCollection = Util._getPath('Mozart.InstanceCollection')
 
     if @filterAttribute?
-      @bind('change:filterAttribute', @draw)
-      @bind('change:filterText', @draw)
+      @subscribe('change:filterAttribute', @draw)
+      @subscribe('change:filterText', @draw)
 
     if @sortAttribute?
-      @bind('change:sortAttribute', @draw)
-      @bind('change:sortDescending', @draw)
+      @subscribe('change:sortAttribute', @draw)
+      @subscribe('change:sortDescending', @draw)
 
     @set("pageSize",10000) unless @pageSize?
     @set("pageCurrent",0) unless @pageCurrent?
 
-    @bind('change:pageSize', @draw)
-    @bind('change:pageCurrent', @draw)
+    @subscribe('change:pageSize', @draw)
+    @subscribe('change:pageCurrent', @draw)
 
     @method ?= 'all'
     
-    @bind('change:collection', @afterRender)
-    @bind('change:method', @afterRender)
-    @collection.bind?('change', @afterRender)
+    @subscribe('change:collection', @afterRender)
+    @subscribe('change:method', @afterRender)
+    @collection.subscribe?('change', @afterRender)
       
   release: =>
-    @collection.unbind?('change', @afterRender)
+    @collection.unsubscribe?('change', @afterRender)
     super
 
   afterRender: =>
@@ -146,8 +146,8 @@ exports.BoundView = class BoundView extends View
 
   init: ->
     super
-    @content.bind 'change', @redraw
+    @content.subscribe 'change', @redraw
 
   release: ->
-    @content.unbind 'change', @redraw
+    @content.unsubscribe 'change', @redraw
     super

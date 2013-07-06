@@ -4,11 +4,11 @@ exports.Events = class Events
   @callbacks = {}
 
   @eventInit: (objectId, eventName) ->
-		# TODO? Should these be setting the static Events.callbacks or eventsInstance.callbacks?
     Events.callbacks[objectId] ?= { count: 0, events: {} }
     Events.callbacks[objectId].events[eventName] ?= {}
 
-  @trigger: (objectId, eventName, data) ->
+  @trigger: (args...) -> @publish(args...)
+  @publish: (objectId, eventName, data) ->
     if Events.callbacks[objectId]? && Events.callbacks[objectId].events[eventName]?
       list = []
       for id, callbackFunction of Events.callbacks[objectId].events[eventName]
@@ -18,15 +18,18 @@ exports.Events = class Events
       for callbackFunction in list
         delete Events.callbacks[callbackFunction.objectId].events[callbackFunction.eventName][callbackFunction.id]
 
-  @one: (objectId, eventName, callback, binddata) ->
+  @one: (args...) -> @subscribeOnce(args...)
+  @subscribeOnce: (objectId, eventName, callback, binddata) ->
     Events.eventInit(objectId, eventName)
     Events.callbacks[objectId].events[eventName][Events.callbacks[objectId].count++] = { fn: callback, binddata: binddata, once: true }
 
-  @bind: (objectId, eventName, callback, binddata) ->
+  @bind: (args...) -> @subscribe(args...)
+  @subscribe: (objectId, eventName, callback, binddata) ->
     Events.eventInit(objectId, eventName)
     Events.callbacks[objectId].events[eventName][Events.callbacks[objectId].count++] = { fn: callback, binddata: binddata }
 
-  @unbind: (objectId, eventName, callback) ->
+  @unbind: (args...) -> @unsubscribe(args...)
+  @unsubscribe: (objectId, eventName, callback) ->
     if callback? && Events.callbacks[objectId]? && Events.callbacks[objectId].events[eventName]?
       list = []
       for id, callbackFunction of Events.callbacks[objectId].events[eventName]
@@ -41,5 +44,6 @@ exports.Events = class Events
 
     delete Events.callbacks[objectId]
 
-  @getBinds: (objectId, eventName) ->
+  @getBinds: (args...) -> @getSubscribed(args...)
+  @getSubscribed: (objectId, eventName) ->
     _(Events.callbacks[objectId].events[eventName]).values()

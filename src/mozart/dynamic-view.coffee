@@ -9,7 +9,7 @@ exports.DynamicView = class DynamicView extends View
     super
     Util.log('dynamicview','init')
     
-    @bind('change:schema', @afterRender) if @schema?
+    @subscribe('change:schema', @afterRender) if @schema?
 
   afterRender: =>
     @releaseChildren()

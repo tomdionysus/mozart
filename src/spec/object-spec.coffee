@@ -42,77 +42,77 @@ describe 'Mozart.MztObject', ->
       spyOn(@testproc,'testcallback2')
       spyOn(@testproc,'testcallback1_1')
 
-    it 'should bind and trigger an event', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.trigger 'testeventone', { prop1: 'propone' }
+    it 'should subscribe and publish an event', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.publish 'testeventone', { prop1: 'propone' }
 
       expect(@testproc.testcallback1).toHaveBeenCalled()
       expect(@testproc.testcallback2).not.toHaveBeenCalled()
 
-    it 'should bind and trigger multiple events', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.bind 'testeventtwo' , @testproc.testcallback2
+    it 'should subscribe and publish multiple events', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.subscribe 'testeventtwo' , @testproc.testcallback2
       
-      @t.trigger 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventone', { prop1: 'propone' }
       expect(@testproc.testcallback1).toHaveBeenCalled()
-      @t.trigger 'testeventtwo', { prop2: 'proptwo' }
+      @t.publish 'testeventtwo', { prop2: 'proptwo' }
       expect(@testproc.testcallback2).toHaveBeenCalled()
 
-    it 'should bind and trigger multiple callbacks on one event', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.bind 'testeventone' , @testproc.testcallback1_1
+    it 'should subscribe and publish multiple callbacks on one event', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.subscribe 'testeventone' , @testproc.testcallback1_1
       
-      @t.trigger 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventone', { prop1: 'propone' }
       expect(@testproc.testcallback1).toHaveBeenCalled()
       expect(@testproc.testcallback1_1).toHaveBeenCalled()
 
-    it 'should unbind from a single event and callback', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.bind 'testeventone' , @testproc.testcallback1_1
+    it 'should unsubscribe from a single event and callback', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.subscribe 'testeventone' , @testproc.testcallback1_1
 
-      @t.unbind 'testeventone', @testproc.testcallback1_1
+      @t.unsubscribe 'testeventone', @testproc.testcallback1_1
 
-      @t.trigger 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventone', { prop1: 'propone' }
 
       expect(@testproc.testcallback1).toHaveBeenCalled()
       expect(@testproc.testcallback1_1).not.toHaveBeenCalled()
 
-    it 'should unbind all callbacks from a single event', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.bind 'testeventone' , @testproc.testcallback1_1
-      @t.bind 'testeventtwo' , @testproc.testcallback2
+    it 'should unsubscribe all callbacks from a single event', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.subscribe 'testeventone' , @testproc.testcallback1_1
+      @t.subscribe 'testeventtwo' , @testproc.testcallback2
 
-      @t.unbind 'testeventone'
+      @t.unsubscribe 'testeventone'
 
-      @t.trigger 'testeventone', { prop1: 'propone' }
-      @t.trigger 'testeventtwo', { prop2: 'proptwo' }
+      @t.publish 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventtwo', { prop2: 'proptwo' }
 
       expect(@testproc.testcallback1).not.toHaveBeenCalled()
       expect(@testproc.testcallback1_1).not.toHaveBeenCalled()
       expect(@testproc.testcallback2).toHaveBeenCalled()
 
-    it 'should unbind all callbacks', ->
-      @t.bind 'testeventone' , @testproc.testcallback1
-      @t.bind 'testeventone' , @testproc.testcallback1_1
-      @t.bind 'testeventtwo' , @testproc.testcallback2
+    it 'should unsubscribe all callbacks', ->
+      @t.subscribe 'testeventone' , @testproc.testcallback1
+      @t.subscribe 'testeventone' , @testproc.testcallback1_1
+      @t.subscribe 'testeventtwo' , @testproc.testcallback2
 
-      @t.unbind()
+      @t.unsubscribe()
 
-      @t.trigger 'testeventone', { prop1: 'propone' }
-      @t.trigger 'testeventtwo', { prop2: 'proptwo' }
+      @t.publish 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventtwo', { prop2: 'proptwo' }
 
       expect(@testproc.testcallback1).not.toHaveBeenCalled()
       expect(@testproc.testcallback1_1).not.toHaveBeenCalled()
       expect(@testproc.testcallback2).not.toHaveBeenCalled()
 
-    it 'should bind and trigger a one event, and not trigger it twice', ->
-      @t.one 'testeventone' , @testproc.testcallback1
-      @t.trigger 'testeventone', { prop1: 'propone' }
+    it 'should subscribe and publish a once event, and not publish it twice', ->
+      @t.subscribeOnce 'testeventone' , @testproc.testcallback1
+      @t.publish 'testeventone', { prop1: 'propone' }
 
       expect(@testproc.testcallback1).toHaveBeenCalled()
 
       @testproc.testcallback1.reset()
-      @t.trigger 'testeventone', { prop1: 'propone' }
+      @t.publish 'testeventone', { prop1: 'propone' }
 
       expect(@testproc.testcallback1).not.toHaveBeenCalled()
   

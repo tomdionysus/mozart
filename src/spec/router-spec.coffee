@@ -25,7 +25,7 @@ describe 'Mozart.Router', ->
         unmatched: (data, params) =>
           Test.testwrapper.unmatchedcalled()
 
-      Test.router.bind('noroute',-> Test.testwrapper.unmatched())
+      Test.router.subscribe('noroute',-> Test.testwrapper.unmatched())
       Test.router.register('/customer/:customer_id', Test.testwrapper.simpleroute)
       Test.router.register('/customer/:customer_id/photos/:photo_id', Test.testwrapper.complexroute, { extra : 1 })
       
@@ -83,7 +83,7 @@ describe 'Mozart.Router', ->
         unmatched: (data, params) =>
           Test.testwrapper.unmatchedcalled()
 
-      Test.router.bind('noroute',-> Test.testwrapper.unmatched())
+      Test.router.subscribe('noroute',-> Test.testwrapper.unmatched())
       Test.router.register('/customer/:customer_id', Test.testwrapper.simpleroute)
       Test.router.register('/customer/:customer_id/photos/:photo_id', Test.testwrapper.complexroute, { extra : 1 })
       

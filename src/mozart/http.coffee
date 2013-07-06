@@ -14,9 +14,9 @@ exports.HTTP = class HTTP extends MztObject
   handleError: (jqXHR, status, context, errorThrown) ->
     switch jqXHR.status
       when 401
-        Mozart.Ajax.trigger('httpAuthorizationRequired',context, jqXHR)
+        Mozart.Ajax.publish('httpAuthorizationRequired',context, jqXHR)
       when 404
-        Mozart.Ajax.trigger('httpForbidden',context, jqXHR)
+        Mozart.Ajax.publish('httpForbidden',context, jqXHR)
       else
         Util.error('Model.Ajax.handleError', jqXHR, status, errorThrown)
 

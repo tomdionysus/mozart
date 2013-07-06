@@ -90,29 +90,41 @@ exports.MztObject = class MztObject
       @[key] = value
 
       @_doNotifyBinding(key)
-      @trigger('change')
-      @trigger('change:'+key)
+      @publish('change')
+      @publish('change:'+key)
 
-  bind: (args...) ->
-    Events.bind(@_mozartId, args...)
+  bind: (args...) -> 
+    console.warn "'bind' will be depreciated in Mozart 0.2.0. Please use 'subscribe'." if console?
+    @subscribe(args...)
+  subscribe: (args...) ->
+    Events.subscribe(@_mozartId, args...)
     @
 
   one: (args...) ->
-    Events.one(@_mozartId, args...)
+    console.warn "'one' will be depreciated in Mozart 0.2.0. Please use 'subscribeOnce'." if console?
+    @subscribeOnce(args...)
+  subscribeOnce: (args...) ->
+    Events.subscribeOnce(@_mozartId, args...)
     @
 
-  trigger: (args...) ->
-    Events.trigger(@_mozartId, args...)
+  publish: (args...) ->
+    console.warn "'publish' will be depreciated in Mozart 0.2.0. Please use 'publish'." if console?
+    @publish(args...)
+  publish: (args...) ->
+    Events.publish(@_mozartId, args...)
     @
-      
+
   unbind: (args...) ->
-    Events.unbind(@_mozartId, args...)
+    console.warn "'unbind' will be depreciated in Mozart 0.2.0. Please use 'unsubscribe'." if console?
+    @unsubscribe(args...)
+  unsubscribe: (args...) ->
+    Events.unsubscribe(@_mozartId, args...)
     @
 
   release: ->
     return if @released
     @_removeAllBindings()
-    @unbind()
+    @unsubscribe()
     for own k,v of @
       @[k] = undefined
       delete @[k]
