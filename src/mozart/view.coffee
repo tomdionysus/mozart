@@ -25,7 +25,7 @@ exports.View = class View extends MztObject
 
     Util.log('views',"view #{@id} init")
 
-    @bind('change:display', @redraw)
+    @subscribe('change:display', @redraw)
 
   prepareElement: =>
     return if @released
@@ -113,7 +113,6 @@ exports.View = class View extends MztObject
     return if @released
     Util.log('views',@layout,"releasing view #{@id}")
     @removeDomBinds()
-    @unbind()
     @parent.removeView(@) if @parent?
     @releaseChildren()
     @element.remove() if @element?
@@ -157,7 +156,7 @@ exports.View = class View extends MztObject
     for bindId, binding of @domBindings
       binding.element = $("#"+bindId)
       Util.error "View.createDomBinds - cannot find element #{bindId}" unless binding.element?
-      binding.target.bind 'change:'+binding.attribute, @onDomBindChange, binding
+      binding.target.subscribe 'change:'+binding.attribute, @onDomBindChange, binding
       binding.element.text(binding.target[binding.attribute])
 
   onDomBindChange: (triggerdata,binding) ->
@@ -165,5 +164,5 @@ exports.View = class View extends MztObject
 
   removeDomBinds: ->
     for bindId, binding of @domBindings when binding.element is not null
-      binding.target.unbind 'change:'+binding.attribute, @onDomBindChange
+      binding.target.unsubscribe 'change:'+binding.attribute, @onDomBindChange
     @domBindings = {}

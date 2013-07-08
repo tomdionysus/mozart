@@ -43,7 +43,7 @@ exports.ManyToManyCollection = class ManyToManyCollection extends InstanceCollec
   onModelChange: (link) =>
     if link.get(@thisFkAttr) == @record.id
       instance = @otherModel.findById(link[@thatFkAttr])
-      @trigger('change', instance)
+      @publish('change', instance)
 
   release: =>
     @unBindEvents([@linkModel])

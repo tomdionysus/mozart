@@ -49,7 +49,7 @@ exports.ManyToManyPolyReverseCollection = class ManyToManyPolyReverseCollection 
   onModelChange: (link) =>
     if link[@thatFkAttr] == @record.id && link[@thatTypeAttr] == @model.modelName
       instance = @model.findById(link[@thisFkAttr])
-      @trigger('change', instance)
+      @publish('change', instance)
 
   release: =>
     @unBindEvents([@linkModel])

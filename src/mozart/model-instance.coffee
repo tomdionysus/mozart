@@ -16,16 +16,16 @@ exports.Instance = class Instance extends MztObject
     options ?= {}
     unless @modelClass.exists(@id)
       @modelClass.createInstance(@, options)
-      @trigger('create')
+      @publish('create')
     else
       @modelClass.updateInstance(@, options)
-      @trigger('update')
-    @trigger('change')
+      @publish('update')
+    @publish('change')
 
   destroy: (options) =>
     options ?= {}
-    @trigger('destroy', options)
-    @trigger('change')
+    @publish('destroy', options)
+    @publish('change')
     @modelClass.destroyInstance(@, options)
 
   get: (key) =>

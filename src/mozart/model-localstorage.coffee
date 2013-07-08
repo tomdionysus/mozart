@@ -17,17 +17,17 @@ Model.extend
 
     @localStorageOptions = options
 
-    @bind 'load', @loadLocalStorage
-    @bind 'create', @createLocalStorage
-    @bind 'update', @updateLocalStorage
-    @bind 'destroy', @destroyLocalStorage
+    @subscribe 'load', @loadLocalStorage
+    @subscribe 'create', @createLocalStorage
+    @subscribe 'update', @updateLocalStorage
+    @subscribe 'destroy', @destroyLocalStorage
 
     _localStorageToClientId[@modelName] ?= {}
     _clientToLocalStorageId[@modelName] ?= {}
 
     Mozart.LocalStorage ?= Mozart.MztObject.create
       handleError: (model, id, error) ->
-        Mozart.LocalStorage.trigger('notFound', model, id, error)
+        Mozart.LocalStorage.publish('notFound', model, id, error)
 
     prefix = @getLocalStoragePrefix()
     
@@ -115,7 +115,7 @@ Model.extend
       data = JSON.parse(window.localStorage[prefix+"-#{localStorageId}"])
       @_processLocalStorageLoad(localStorageId, data, @)
 
-    @trigger('loadAllLocalStorageComplete')
+    @publish('loadAllLocalStorageComplete')
     Util.log('localStorage','Model.loadAllLocalStorage.onComplete')
 
   loadLocalStorage: (instance) ->
@@ -148,7 +148,7 @@ Model.extend
       disableModelUpdateEvent: true
     model.registerLocalStorageId(instance.id,localStorageId)
     Util.log('localStorage','Model._processLocalStorageLoad.onSuccess', data, model)
-    model.trigger('loadLocalStorageComplete', instance)
+    model.publish('loadLocalStorageComplete', instance)
 
   createLocalStorage: (instance) ->
     data = instance.modelClass.toLocalStorageObject(instance)
@@ -171,7 +171,7 @@ Model.extend
 
     # Done
     Util.log('localStorage','Model.createLocalStorageComplete',instance)
-    instance.modelClass.trigger('createLocalStorageComplete', instance)
+    instance.modelClass.publish('createLocalStorageComplete', instance)
 
   updateLocalStorage: (instance) ->
     localStorageId = instance.modelClass.getLocalStorageId(instance.id)
@@ -188,7 +188,7 @@ Model.extend
     window.localStorage[prefix+"-#{localStorageId}"] = JSON.stringify(data)
 
     # Done
-    instance.modelClass.trigger('updateLocalStorageComplete', instance)
+    instance.modelClass.publish('updateLocalStorageComplete', instance)
     Util.log('localStorage','Model.updateLocalStorage.onComplete', instance)
 
   destroyLocalStorage: (instance) ->
@@ -214,7 +214,7 @@ Model.extend
     
     # Done
     Util.log('localStorage','Model.destroyLocalStorage.onSuccess',instance)
-    instance.modelClass.trigger('destroyLocalStorageComplete', localStorageId)
+    instance.modelClass.publish('destroyLocalStorageComplete', localStorageId)
 
   destroyAllLocalStorage: ->
     prefix = @getLocalStoragePrefix()

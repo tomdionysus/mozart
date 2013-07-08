@@ -13,12 +13,12 @@ exports.InstanceCollection = class InstanceCollection extends MztObject
 
   bindEvents: (models) =>
     for m in models
-      m.bind('create', @onModelChange)
-      m.bind('update', @onModelChange)
-      m.bind('destroy', @onModelChange)
+      m.subscribe('create', @onModelChange)
+      m.subscribe('update', @onModelChange)
+      m.subscribe('destroy', @onModelChange)
 
   unBindEvents: (models) =>
     for m in models
-      m.unbind('create', @onModelChange)
-      m.unbind('update', @onModelChange)
-      m.unbind('destroy', @onModelChange)
+      m.unsubscribe('create', @onModelChange)
+      m.unsubscribe('update', @onModelChange)
+      m.unsubscribe('destroy', @onModelChange)

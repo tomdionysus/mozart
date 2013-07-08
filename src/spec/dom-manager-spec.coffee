@@ -20,7 +20,7 @@ describe "Mozart.DOMManager", ->
         rootElement: $('body')
 
     xit "should allow binds to keyUp event", ->
-      Test.layout.bind('keyUp', -> Test.callSpy.keyUpCalled())
+      Test.layout.subscribe('keyUp', -> Test.callSpy.keyUpCalled())
 
       spyOn Test.callSpy, "keyUpCalled"
 
@@ -30,7 +30,7 @@ describe "Mozart.DOMManager", ->
       Test.layout.release()
 
     it "should allow binds to keyDown event", ->
-      Test.layout.bind('keyDown', -> Test.callSpy.keyDownCalled())
+      Test.layout.subscribe('keyDown', -> Test.callSpy.keyDownCalled())
 
       spyOn Test.callSpy, "keyDownCalled"
 
@@ -40,7 +40,7 @@ describe "Mozart.DOMManager", ->
       Test.layout.release()
 
     it "should allow binds to keyPressCalled event", ->
-      Test.layout.bind('keyPress', -> Test.callSpy.keyPressCalled())
+      Test.layout.subscribe('keyPress', -> Test.callSpy.keyPressCalled())
 
       spyOn Test.callSpy, "keyPressCalled"
 
@@ -49,8 +49,8 @@ describe "Mozart.DOMManager", ->
       expect(Test.callSpy.keyPressCalled).toHaveBeenCalled()
       Test.layout.release()
 
-    it "should unbind events on release", ->
-      Test.layout.bind('keyUp', -> Test.callSpy.keyUpCalled())
+    it "should unsubscribe events on release", ->
+      Test.layout.subscribe('keyUp', -> Test.callSpy.keyUpCalled())
 
       spyOn Test.callSpy, "keyUpCalled"
 

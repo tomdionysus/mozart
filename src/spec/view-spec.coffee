@@ -120,7 +120,7 @@ describe 'Mozart.View', ->
     expect(@view.element.text()).toContain('dave')
     expect(@view.element.text()).toContain('XXdaveXX')
 
-  it "should be able to bind a view from a parent", ->
+  it "should be able to bind onto a property from a parent view", ->
     class SpecTest.ParentView extends Mozart.View
       templateName: ''
     @parentView = SpecTest.ParentView.create(customer: @john)

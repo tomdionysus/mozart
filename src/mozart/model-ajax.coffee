@@ -14,10 +14,10 @@ Model.extend
     for field in ['url','interface','plural']
       @[field] = options[field] if options[field]?
 
-    @bind 'load', @loadServer
-    @bind 'create', @createServer
-    @bind 'update', @updateServer
-    @bind 'destroy', @destroyServer
+    @subscribe 'load', @loadServer
+    @subscribe 'create', @createServer
+    @subscribe 'update', @updateServer
+    @subscribe 'destroy', @destroyServer
 
     _serverToClientId[@modelName] ?= {}
     _clientToServerId[@modelName] ?= {}
@@ -26,9 +26,9 @@ Model.extend
       handleError: (jqXHR, status, context, errorThrown) ->
         switch jqXHR.status
           when 401
-            Mozart.Ajax.trigger('httpAuthorizationRequired',context, jqXHR)
+            Mozart.Ajax.publish('httpAuthorizationRequired',context, jqXHR)
           when 404
-            Mozart.Ajax.trigger('httpForbidden',context, jqXHR)
+            Mozart.Ajax.publish('httpForbidden',context, jqXHR)
           else
             Util.error('Model.Ajax.handleError', jqXHR, status, errorThrown)
 
@@ -161,7 +161,7 @@ Model.extend
         data = data[@model.plural]
       for obj in data
         @model._processLoad(obj,@model,jqXHR)
-      @model.trigger('loadAllComplete')
+      @model.publish('loadAllComplete')
 
     onError = (jqXHR, status, errorThrown) ->
       Mozart.Ajax.handleError(jqXHR, status, @, errorThrown)
@@ -207,7 +207,7 @@ Model.extend
       disableModelCreateEvent: true
       disableModelUpdateEvent: true
     Util.log('ajax','Model._processLoad.onSuccess',jqXHR, data)
-    model.trigger('loadComplete', instance)
+    model.publish('loadComplete', instance)
 
   #
   # CREATE AJAX
@@ -217,7 +217,7 @@ Model.extend
     onSuccess = (data, jqXHR, status) ->
       @model.registerServerId(@clientId,data.id)
       Util.log('ajax','Model.createAjax.onSuccess',jqXHR, data)
-      @model.trigger('createComplete', @model.findById(clientId))
+      @model.publish('createComplete', @model.findById(clientId))
 
     onError = (jqXHR, status, errorThrown) ->
       Mozart.Ajax.handleError(jqXHR, status, @, errorThrown)
@@ -235,7 +235,7 @@ Model.extend
   updateAjax: (serverId, clientId, data) ->
     onSuccess = (data, jqXHR, status) ->
       Util.log('ajax','Model.updateAjax.onSuccess',jqXHR, data)
-      @model.trigger('updateComplete', @model.findById(clientId))
+      @model.publish('updateComplete', @model.findById(clientId))
 
     onError = (jqXHR, status, errorThrown) ->
       Mozart.Ajax.handleError(jqXHR, status, @, errorThrown)
@@ -254,7 +254,7 @@ Model.extend
     onSuccess = (data, jqXHR, status) ->
       @model.unRegisterServerId(clientId,serverId)
       Util.log('ajax','Model.destroyAjax.onSuccess',jqXHR, data)
-      @model.trigger('destroyComplete', serverId)
+      @model.publish('destroyComplete', serverId)
 
     onError = (jqXHR, status, errorThrown) ->
       Mozart.Ajax.handleError(jqXHR, status, @, errorThrown)

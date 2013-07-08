@@ -9,7 +9,7 @@ exports.Router = class Router extends MztObject
 
   start: =>
     if (@useHashRouting)
-      $(window).bind('hashchange',@onHashChange)
+      $(window).on('hashchange', @onHashChange)
       @onHashChange()
     else
       $('body').on("click", 'a', @onNavigationEvent)
@@ -18,7 +18,7 @@ exports.Router = class Router extends MztObject
 
   stop: =>
     if (@useHashRouting)
-      $(window).unbind('hashchange',@onHashChange)
+      $(window).off('hashchange',@onHashChange)
     else
       $('body').off("click", 'a', @onNavigationEvent)
       $(window).off("popstate", @onPopState)
@@ -83,7 +83,7 @@ exports.Router = class Router extends MztObject
         return true
 
     @isNavigating = false
-    @trigger('noroute',window.location.hash)
+    @publish('noroute',window.location.hash)
     false
 
   release: =>

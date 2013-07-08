@@ -50,7 +50,7 @@ exports.ManyToManyPolyCollection = class ManyToManyPolyCollection extends Instan
   onModelChange: (link) =>
     if link[@thisFkAttr] == @record.id && link[@thatTypeAttr] == @otherModel.modelName
       instance = @otherModel.findById(link[@thatFkAttr])
-      @trigger('change', instance)
+      @publish('change', instance)
 
   release: =>
     @unBindEvents([@linkModel])

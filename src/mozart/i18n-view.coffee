@@ -8,7 +8,7 @@ exports.I18nView = class I18nView extends View
   init: ->
     super
     throw new Error "Mozart.I18nView must have a i18nTemplate" unless @i18nTemplate?
-    @bind 'change', @redraw
+    @subscribe 'change', @redraw
 
   templateFunction: ->
     try
