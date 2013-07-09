@@ -255,33 +255,39 @@ Handlebars.registerHelper "valueUnless", (context, options) ->
     options.inverse @
 
 Handlebars.registerHelper "action", (action, options) ->
-  Util.log('handlebars',"handlebars helper 'action':", @, action,options)
-  if arguments.length==1
-    options = record
+  Util.log('handlebars',"handlebars helper 'action':", @, action, options)
 
-  target = options.data  
-  if options.hash.target?
-    if options.hash.target == "parent"
-      target = options.data.parent
-    else
-      target = Util.getPath(options.data, options.hash.target)
+  # Deprecation warning
+  if options.hash.target? 
+    console.warn "Handlebars action helper: action '#{action}' on '#{options.hash.target}' - the 'target' parameter will be Deprecated in 0.2.0. Please use the full path in the action method string." if console?
+    action = options.hash.target+"."+action 
+    
+  # Find method to call
+  [path, action] = Util.parsePath(action)
 
+  # No path = context is current view
+  if path?
+    target = Util.getPath(options.data, path)
+  else
+    target = options.data
+
+  # Setup data attr and actionId
   actionId = Util.getId()
   ret = 'data-mozart-action="'+actionId+'"'
 
+  # Process Allowed Events
   if options.hash.events?
     evt = options.hash.events.split(',')
   else
     evt = ["click"]
 
-  allowDefault = options.hash.allowDefault and true
-
+  # Add control
   options.data.layout.addControl actionId,
     action: action
     view: target
     options: options.hash
     events: evt
-    allowDefault: allowDefault
+    allowDefault: (options.hash.allowDefault == true)
 
   new Handlebars.SafeString(ret)
 
