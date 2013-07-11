@@ -179,7 +179,7 @@ describe 'Mozart.View', ->
       @view = SpecTest.TestView.create
         testEventAction: 'SpecTest.testController.testMethod'
       
-      @view.trigger('testEvent', {one:1})
+      @view.publish('testEvent', {one:1})
 
       expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
 
@@ -205,7 +205,7 @@ describe 'Mozart.View', ->
       
       @parentView.expectedView = @view
       
-      @view.trigger('testEvent', {one:1})
+      @view.publish('testEvent', {one:1})
 
       expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
 
@@ -227,11 +227,11 @@ describe 'Mozart.View', ->
         testEventAction: 'SpecTest.testController.testMethod'
       
       @SpecTest.testController.expectedView = @view
-      @view.trigger('testEvent')
+      @view.publish('testEvent')
       expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
 
       @SpecTest.testController.expectedView = @view2
-      @view2.trigger('testEvent')
+      @view2.publish('testEvent')
       expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
 
     it "should not call an auto action when disabled", ->
@@ -248,6 +248,6 @@ describe 'Mozart.View', ->
       @view = SpecTest.TestView.create
         testEventAction: 'SpecTest.testController.testMethod'
       
-      @view.trigger('testEvent', {one:1})
+      @view.publish('testEvent', {one:1})
 
       expect(tm).not.toHaveBeenCalled()
