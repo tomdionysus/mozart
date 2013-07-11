@@ -567,8 +567,6 @@ describe 'Mozart.MztObject', ->
 
         Mozart.root = window
 
-        window.trace = true
-
         Test.controller = Mozart.MztObject.create
           subject: 'one'
 
@@ -582,11 +580,8 @@ describe 'Mozart.MztObject', ->
         expect(y.test).toEqual('two')
         expect(z.test).toEqual('two')
 
-        #y._removeBinding('subject', Test.controller, 'subject', Mozart.MztObject.OBSERVE)
         y.release()
 
         Test.controller.set('subject', 'three')
 
         expect(z.test).toEqual('three')
-
-        window.trace = false

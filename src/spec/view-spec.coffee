@@ -163,5 +163,91 @@ describe 'Mozart.View', ->
     @SpecTest.customerController.set('customer',@john)
     expect(@view.get('customer')).toEqual(@tom)
 
+  describe 'Auto Actions', ->
+    it "should define and call an auto action targeting a controller", ->
 
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+          expect(view).toEqual(@view)
+          expect(d).toEqual({one:1})
 
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @view.publish('testEvent', {one:1})
+
+      expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
+
+    it "should define and call an auto action targeting the parent view", ->
+
+      class SpecTest.ParentTestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+        testMethod: (view, d) =>
+          expect(view).toEqual(@expectedView)
+          expect(d).toEqual({one:1})
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @parentView = SpecTest.ParentTestView.create()
+
+      tm = spyOn(@parentView,'testMethod').andCallThrough()
+
+      @view = SpecTest.TestView.create
+        parent: @parentView
+        testEventAction: 'testMethod'
+      
+      @parentView.expectedView = @view
+      
+      @view.publish('testEvent', {one:1})
+
+      expect(tm).toHaveBeenCalledWith(@view, {one:1}, 'testEvent')
+
+    it "should define and call an auto action on two views", ->
+
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+          expect(view).toEqual(@SpecTest.testController.expectedView)
+
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+
+      @view2 = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @SpecTest.testController.expectedView = @view
+      @view.publish('testEvent')
+      expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
+
+      @SpecTest.testController.expectedView = @view2
+      @view2.publish('testEvent')
+      expect(tm).toHaveBeenCalledWith(@view,undefined,'testEvent')
+
+    it "should not call an auto action when disabled", ->
+
+      @SpecTest.testController = Mozart.MztObject.create
+        testMethod: (view, d) =>
+
+      tm = spyOn(@SpecTest.testController,'testMethod').andCallThrough()
+
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+        disableAutoActions: true
+
+      @view = SpecTest.TestView.create
+        testEventAction: 'SpecTest.testController.testMethod'
+      
+      @view.publish('testEvent', {one:1})
+
+      expect(tm).not.toHaveBeenCalled()
