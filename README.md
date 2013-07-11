@@ -11,6 +11,8 @@ Please see http://mozart.io for documentation, examples etc.
 ## 0.1.9
 
 * Declarative View Actions (/name/Action)
+* Handlebars {{action}} 'target' attribute now deprecated, use full path
+* bind/one/unbind/trigger deprecated, use subscribe/subscribeOne/unsubscribe/publish
 
 ## 0.1.8
 
