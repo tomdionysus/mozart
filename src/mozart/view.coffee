@@ -180,6 +180,6 @@ exports.View = class View extends MztObject
         target = @parent
 
       actionName = Mozart.sliceStringBefore(key, 'Action')
-      @bind(actionName, (args) => 
+      @subscribe(actionName, (args) => 
         target[method](@,args,actionName)
       )
