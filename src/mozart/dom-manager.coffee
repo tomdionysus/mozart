@@ -29,7 +29,17 @@ exports.DOMManager = class DOMManager extends MztObject
     @element.on(events, '[view]', @onViewEvent)
     @element.on(events, '[data-mozart-action]', @onControlEvent)
 
-    @openElements = {}
+  release: =>
+    @element = $(@rootElement)
+
+    for domevent, method of viewEventMap
+      @element.off(domevent, null, @onApplicationEvent)
+
+    events = (i for i, v of viewEventMap).join(' ')
+
+    @element.off(events, '[view]', @onViewEvent)
+    @element.off(events, '[data-mozart-action]', @onControlEvent)
+    super
 
   find: (id) =>
     for layout in @layouts
@@ -66,15 +76,6 @@ exports.DOMManager = class DOMManager extends MztObject
           Util.log('events','clickOutside on', view,'(',event,')')
           view.clickOutside()
 
-  release: =>
-    for domevent, method of viewEventMap
-      @element.off(domevent, null, @_checkRootEvent)
-
-    events = (i for i, v of viewEventMap).join(' ')
-
-    @element.off(events, '[view]', @onViewEvent)
-    @element.off(events, '[data-mozart-action]', @onControlEvent)
-    super
 
   onApplicationEvent: (event) =>
     @publish event.data.eventName, event
@@ -92,8 +93,10 @@ exports.DOMManager = class DOMManager extends MztObject
         methodName = viewEventMap[event.type]
         @publish "viewEvent", event, view  
         if typeof (view[methodName]) == 'function'
+          console.warn "Magic event methods on views are deprecated as of 0.1.9 and will be removed in 0.2.0. Please subscribe to the event instead." if console?
           Util.log('events',methodName,'on',view,'(',event,')')
           view[methodName](event,view)
+        view.publish(event.type, {event:event, view:view})
 
     @checkClickOutside(event)
     true
