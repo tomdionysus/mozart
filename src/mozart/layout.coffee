@@ -59,20 +59,17 @@ exports.Layout = class Layout extends Router
     Util.log('layout',"#{@_mozartId} queueRenderView", view)
     @views[view.id] ?= view
 
-    @scheduleProcessRenderQueue() if @viewRenderQueue.length==0
+    @schedule(@processRenderQueue) if @viewRenderQueue.length==0
     
     @viewRenderQueue.push(view)
 
-  scheduleProcessRenderQueue: =>
-    func = window.webkitRequestAnimationFrame ||
+  schedule:
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame
-
-    if func?
-      func(@processRenderQueue)
-    else
-      _.delay(@processRenderQueue,0)
+    window.msRequestAnimationFrame ||
+    _.defer
 
   processRenderQueue: =>
     return if @released
