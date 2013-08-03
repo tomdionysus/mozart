@@ -12,7 +12,7 @@ Please see http://mozart.io for documentation, examples etc.
 
 ## 0.2.0
 
-* TBA
+* Added *attr*Html[Observe|Notify]Binding capability on views
 
 ## 0.1.9
 
