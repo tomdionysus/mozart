@@ -30,6 +30,7 @@ exports.Collection = class Collection extends View
     @subscribe('change:pageCurrent', @draw)
 
     @method ?= 'all'
+    @displayWhenEmpty ?= true
     
     @subscribe('change:collection', @afterRender)
     @subscribe('change:method', @afterRender)
@@ -124,6 +125,11 @@ exports.Collection = class Collection extends View
           vl = Util.getPath(item, field)
           hide = hide and (vl.toString().toLowerCase().indexOf(st) == -1) if vl?
           @hidden[item.id] = 1 if hide 
+
+    # Empty?
+    unless @displayWhenEmpty
+      @set 'display', @displayOrder.length != 0
+      return unless @display
 
     # Draw
     start = @pageCurrent * @pageSize

@@ -13,6 +13,7 @@ Please see http://mozart.io for documentation, examples etc.
 ## 0.2.1
 
 * Added findBy<fieldname>, getBy<fieldname> methods on indexed fields
+* Added displayWhenEmpty to collection
 
 ## 0.2.0
 
