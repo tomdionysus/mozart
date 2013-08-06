@@ -17,6 +17,15 @@ describe 'Mozart.View', ->
     @ele.remove()
     @SpecTest = {}
 
+  it "should error when templateName doesn't exist in HandlebarsTemplates", ->
+    class SpecTest.BadTemplateNameView extends Mozart.View
+      templateName: "somevalueThatDoesntExist"
+
+    createBadTemplateNameView = ->
+      SpecTest.BadTemplateNameView.create()
+
+    expect(createBadTemplateNameView).toThrow()
+
   it "should be able to render a simple view to DOM", ->
     class SpecTest.PersonView extends Mozart.View
       customer: null
@@ -122,12 +131,12 @@ describe 'Mozart.View', ->
 
   it "should be able to bind onto a property from a parent view", ->
     class SpecTest.ParentView extends Mozart.View
-      templateName: ''
+      templateFunction: (context, data) -> ""
     @parentView = SpecTest.ParentView.create(customer: @john)
 
     class SpecTest.ChildView extends Mozart.View
       candidateBinding: 'parent.customer'
-      templateName: ''
+      templateFunction: (context, data) -> ""
     @childView = SpecTest.ChildView.create
       parent: @parentView 
 
