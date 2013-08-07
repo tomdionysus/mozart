@@ -20,8 +20,8 @@ exports.View = class View extends MztObject
     @parent.addView(@) if @parent?
 
     unless @templateFunction? or @skipTemplate?
-      unless @templateName?
-        Util.error 'View: View has no templateName or templateFunction',"view",@
+      Util.error 'View: View has no templateName or templateFunction',"view",@ unless @templateName?
+      Util.error "View: Template '#{@templateName}' does not exist in window.HandlebarsTemplates","view",@ unless HandlebarsTemplates[@templateName]?
       @templateFunction = HandlebarsTemplates[@templateName]
 
     Util.log('views',"view #{@id} init")
