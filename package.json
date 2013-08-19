@@ -2,7 +2,7 @@
   "author": "Tom Cully",
   "name": "Mozart",
   "description": "A CoffeeScript MVC framework",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "homepage": "http://mozart.io",
   "repository": {
     "type": "git",
