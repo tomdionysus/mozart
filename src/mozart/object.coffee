@@ -107,8 +107,8 @@ exports.MztObject = class MztObject
     Events.subscribeOnce(@_mozartId, args...)
     @
 
-  publish: (args...) ->
-    console.warn "'publish' will be depreciated in Mozart 0.2.0. Please use 'publish'." if console?
+  trigger: (args...) ->
+    console.warn "'trigger' will be depreciated in Mozart 0.2.0. Please use 'publish'." if console?
     @publish(args...)
   publish: (args...) ->
     Events.publish(@_mozartId, args...)
