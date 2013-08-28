@@ -128,19 +128,19 @@ exports.Collection = class Collection extends View
     # Draw
     start = @pageCurrent * @pageSize
     count = 0
-    vcount = 0
-    dcount = 0
+    rows = 0
+    page = 0
     for item in @displayOrder
       unless @hidden[item.id]?
-        unless count<start or dcount>=@pageSize 
+        unless count<start or page>=@pageSize
           unless @itemViews[item.id]?
-            @createView(item) 
+            @createView(item)
           @element.append(@itemViews[item.id].element)
-          dcount++
-        vcount++
+          page++
+        rows++
       count++
-    @set("pageTotal", Math.ceil(vcount/@pageSize))
-    
+    @set("pageTotal", Math.ceil(rows/@pageSize))
+
     @set("pageCurrent", @pageTotal-1) if @pageCurrent > @pageTotal
 
 exports.BoundView = class BoundView extends View
