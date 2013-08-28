@@ -89,13 +89,14 @@ exports.Collection = class Collection extends View
     obj = 
       content: instance
       parent: @
-      
+
     obj.tag = 'li' if @viewClass == View
-    obj.templateName = @viewClassTemplateName if @viewClassTemplateName?
-    obj.templateFunction = @viewClassTemplateFunction if @viewClassTemplateFunction?
-    obj.tag = @collectionTag if @collectionTag?
-    obj.classNames = @collectionClassNames if @collectionClassNames?
-    obj.tooltips = @tooltips if @tooltips?
+
+    obj.templateName = @viewClassTemplateName
+    obj.templateFunction = @viewClassTemplateFunction
+    obj.tag = @collectionTag
+    obj.classNames = @collectionClassNames
+    obj.tooltips = @tooltips
     view = @layout.createView @viewClass,obj
     @element.append(view.createElement())
     @itemViews[instance.id] = view
