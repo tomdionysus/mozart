@@ -172,6 +172,37 @@ describe 'Mozart.View', ->
     @SpecTest.customerController.set('customer',@john)
     expect(@view.get('customer')).toEqual(@tom)
 
+  it "should be able to render an Html property to an attribute", ->
+    class SpecTest.PersonView extends Mozart.View
+      customer: null
+      templateFunction: SpecTest.simpleViewFunction
+      oneHtml: 'tom'
+
+    @view = SpecTest.PersonView.create()
+    @view.el = @ele[0]
+    @view.prepareElement()
+    @view.replaceElement()
+    expect(@view.element.attr('one')).toBe('tom')
+
+  it "should be able to render an Html property to an attribute with bindings", ->
+    @SpecTest.mainController = Mozart.MztObject.create()
+    
+    class SpecTest.PersonView extends Mozart.View
+      templateFunction: SpecTest.simpleViewFunction
+      oneHtmlObserveBinding: 'SpecTest.mainController.oneattr'
+
+    @SpecTest.mainController.set 'oneattr', 'john'
+
+    @view = SpecTest.PersonView.create()
+    @view.el = @ele[0]
+    @view.prepareElement()
+    @view.replaceElement()
+    expect(@view.element.attr('one')).toBe('john')
+
+    @SpecTest.mainController.set 'oneattr', 'james'
+
+    expect(@view.element.attr('one')).toBe('james')
+
   describe 'Auto Actions', ->
     it "should define and call an auto action targeting a controller", ->
 

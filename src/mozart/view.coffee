@@ -29,6 +29,7 @@ exports.View = class View extends MztObject
     @subscribe('change:display', @redraw)
 
     @createAutoActions() unless @disableAutoActions
+    @createHtmlAttrBindings() unless @disableHtmlAttributes
 
   prepareElement: =>
     return if @released
@@ -183,3 +184,10 @@ exports.View = class View extends MztObject
       @subscribe(actionName, (args) => 
         target[method](@,args,actionName)
       )
+
+  createHtmlAttrBindings: =>
+    for k,v of @getHtmlAttrsMap()
+      @subscribe 'change:'+k+"Html", =>
+        return unless @element?
+        @element.attr(k, @[k+'Html'])
+
