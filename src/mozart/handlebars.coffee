@@ -256,11 +256,6 @@ Handlebars.registerHelper "valueUnless", (context, options) ->
 
 Handlebars.registerHelper "action", (action, options) ->
   Util.log('handlebars',"handlebars helper 'action':", @, action, options)
-
-  # Deprecation warning
-  if options.hash.target? 
-    console.warn "Handlebars action helper: action '#{action}' on '#{options.hash.target}' - the 'target' parameter will be Deprecated in 0.2.0. Please use the full path in the action method string." if console?
-    action = options.hash.target+"."+action 
     
   # Find method to call
   [path, action] = Util.parsePath(action)

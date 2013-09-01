@@ -25,7 +25,7 @@ describe 'Mozart-handlebars', ->
         parent: @mockParentView
         method2: ->
 
-    it 'should correctly parse a non-path action with no target to current view', ->
+    it 'should correctly parse a non-path action to current view', ->
       x = spyOn(@mockLayout, 'addControl')
       
       ret = Handlebars.helpers.action('method2', { data: @mockView, hash: {} } )
@@ -41,43 +41,10 @@ describe 'Mozart-handlebars', ->
         allowDefault: false
       })
 
-    it 'should correctly parse a path action with no target relative to current view', ->
+    it 'should correctly parse a relative path action to that target', ->
       x = spyOn(@mockLayout, 'addControl')
       
-      ret = Handlebars.helpers.action('parent.method1', { data: @mockView, hash: {} } )
-      expect(Mozart.stringStartsWith(ret.toString(),'data-mozart-action=')).toBeTruthy()
-
-      actionId = parseInt(ret.toString().match(/[0-9]+/)[0])
-      
-      expect(x).toHaveBeenCalledWith(actionId, {
-        action: 'method1'
-        view: @mockParentView
-        options: {}
-        events: ["click"]
-        allowDefault: false
-      })
-
-
-    it 'should correctly parse an absolute path action with no target to a global', ->
-      x = spyOn(@mockLayout, 'addControl')
-      
-      ret = Handlebars.helpers.action('Test.testController.method3', { data: @mockView, hash: {} } )
-      expect(Mozart.stringStartsWith(ret.toString(),'data-mozart-action=')).toBeTruthy()
-
-      actionId = parseInt(ret.toString().match(/[0-9]+/)[0])
-      
-      expect(x).toHaveBeenCalledWith(actionId, {
-        action: 'method3'
-        view: @Test.testController,
-        options: {}
-        events: ["click"]
-        allowDefault: false
-      })
-
-    it 'should correctly parse a non-path action with a target to that target', ->
-      x = spyOn(@mockLayout, 'addControl')
-      
-      ret = Handlebars.helpers.action('method1', { data: @mockView, hash: { target: 'parent'} } )
+      ret = Handlebars.helpers.action('parent.method1', { data: @mockView, hash: { } } )
       expect(Mozart.stringStartsWith(ret.toString(),'data-mozart-action=')).toBeTruthy()
 
       actionId = parseInt(ret.toString().match(/[0-9]+/)[0])
@@ -85,15 +52,15 @@ describe 'Mozart-handlebars', ->
       expect(x).toHaveBeenCalledWith(actionId, {
         action: 'method1'
         view: @mockParentView
-        options: { target: 'parent' } 
+        options: { } 
         events: ["click"]
         allowDefault: false
       })
 
-    it 'should correctly parse a path action with an absolute target to that target', ->
+    it 'should correctly parse an absolute path action to that target', ->
       x = spyOn(@mockLayout, 'addControl')
       
-      ret = Handlebars.helpers.action('toast.methodX', { data: @mockView, hash: { target: 'Test.testController' } } )
+      ret = Handlebars.helpers.action('Test.testController.toast.methodX', { data: @mockView, hash: { } } )
       expect(Mozart.stringStartsWith(ret.toString(),'data-mozart-action=')).toBeTruthy()
 
       actionId = parseInt(ret.toString().match(/[0-9]+/)[0])
@@ -101,7 +68,7 @@ describe 'Mozart-handlebars', ->
       expect(x).toHaveBeenCalledWith(actionId, {
         action: 'methodX'
         view: @Test.testController.toast
-        options: { target: 'Test.testController' } 
+        options: { } 
         events: ["click"]
         allowDefault: false
       })
