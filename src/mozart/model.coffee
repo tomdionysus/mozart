@@ -419,7 +419,7 @@ exports.Model = class Model extends MztObject
       otherModelModelTypeAttribute: thatTypeAttr
 
     unless (linkModel.fks[thisFkAttr]? and linkModel.polyFks[thatFkAttr]? and linkModel.polyFks[thatFkAttr]!= thatTypeAttr?)
-      console.error("WARNING: hasManyThroughPolyReverse - #{thisFkAttr}, #{thatFkAttr} or #{thatTypeAttr} do not exist on link model '#{linkModel.modelName}' - there should be an existing hasManyThroughPoly to support this hasManyThroughPolyReverse")
+      Util.warn("hasManyThroughPolyReverse - #{thisFkAttr}, #{thatFkAttr} or #{thatTypeAttr} do not exist on link model '#{linkModel.modelName}' - there should be an existing hasManyThroughPoly to support this hasManyThroughPolyReverse")
 
     Xthis = @
     @instanceClass::[attribute] = (value) ->

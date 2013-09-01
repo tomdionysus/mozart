@@ -65,7 +65,7 @@ exports.Collection = class Collection extends View
         # Is an Array
         @dataSet[item.id] = item for item in @collection
       else 
-        console.error("Collection: #{typeof @collection} can't be iterated")
+        Util.error("Collection: #{typeof @collection} can't be iterated")
 
     toDestroy = []
     for id, view of @itemViews
