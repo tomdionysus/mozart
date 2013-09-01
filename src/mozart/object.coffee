@@ -93,30 +93,18 @@ exports.MztObject = class MztObject
       @publish('change')
       @publish('change:'+key)
 
-  bind: (args...) -> 
-    console.warn "'bind' will be depreciated in Mozart 0.2.0. Please use 'subscribe'." if console?
-    @subscribe(args...)
   subscribe: (args...) ->
     Events.subscribe(@_mozartId, args...)
     @
 
-  one: (args...) ->
-    console.warn "'one' will be depreciated in Mozart 0.2.0. Please use 'subscribeOnce'." if console?
-    @subscribeOnce(args...)
   subscribeOnce: (args...) ->
     Events.subscribeOnce(@_mozartId, args...)
     @
 
-  trigger: (args...) ->
-    console.warn "'trigger' will be depreciated in Mozart 0.2.0. Please use 'publish'." if console?
-    @publish(args...)
   publish: (args...) ->
     Events.publish(@_mozartId, args...)
     @
 
-  unbind: (args...) ->
-    console.warn "'unbind' will be depreciated in Mozart 0.2.0. Please use 'unsubscribe'." if console?
-    @unsubscribe(args...)
   unsubscribe: (args...) ->
     Events.unsubscribe(@_mozartId, args...)
     @
