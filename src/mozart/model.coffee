@@ -589,9 +589,9 @@ exports.Model = class Model extends MztObject
           attribute: attrName
           options: options
         @['findBy'+attrName] = (needle) -> 
-          @.findByAttribute attrName, needle
+          @findByAttribute attrName, needle
         @['getBy'+attrName] = (needle) -> 
-          @.findByAttribute(attrName, needle)[0]
+          @findByAttribute(attrName, needle)[0]
       else
         throw new Error "Model: Index Type #{type} is not supported"
     else
