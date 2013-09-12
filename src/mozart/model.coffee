@@ -588,6 +588,10 @@ exports.Model = class Model extends MztObject
           modelClass: @
           attribute: attrName
           options: options
+        @['findBy'+attrName] = (needle) -> 
+          @findByAttribute attrName, needle
+        @['getBy'+attrName] = (needle) -> 
+          @findByAttribute(attrName, needle)[0]
       else
         throw new Error "Model: Index Type #{type} is not supported"
     else
@@ -618,6 +622,8 @@ exports.Model = class Model extends MztObject
 
   dropIndex: (attrName) ->
     delete @indexes[attrName]
+    delete @['findBy'+attrName]
+    delete @['getBy'+attrName]
 
   rebuildAllIndexes: ->
     for attrName in _(@indexes).keys()

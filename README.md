@@ -12,7 +12,7 @@ Please see http://mozart.io for documentation, examples etc.
 
 ## 0.2.1
 
-* TBA 
+* Added findBy<fieldname>, getBy<fieldname> methods on indexed fields
 
 ## 0.2.0
 

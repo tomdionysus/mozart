@@ -1065,6 +1065,12 @@ describe 'Mozart.Model', ->
         expect(_(@internalMap['aussie']).keys().length).toEqual(1)
         expect(@internalMap['aussie'][@aussie.id]).toEqual(@aussie)
 
+      it 'should add finder functions', ->
+        expect(Test.Tag.findByname).toBeDefined()
+        expect(Test.Tag.getByname).toBeDefined()
+        expect(Test.Tag.findByname('Coder').length).toEqual(2)
+        expect(Test.Tag.getByname('Coder')).toEqual(@coder)
+
       it 'should move the record in the index when a value changes to another existing value', ->
 
         @coder2.set('name', 'aussie')
