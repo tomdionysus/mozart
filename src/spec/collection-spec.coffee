@@ -196,3 +196,68 @@ describe 'Mozart.Collection', ->
         expect(@container.html()).toContain('buyonegettwo')
         expect(@container.html()).toContain('buytwogetthree')
         expect(@container.html()).toContain('buyfourgetfive')
+
+  describe 'responds to displayWhenEmpty', ->
+
+    beforeEach ->
+      SpecTest.simpleViewFunction = Handlebars.compile('
+        {{#collection collectionObserveBinding="SpecTest.controller.items"  displayWhenEmpty=false}}
+          N:{{content.name}}
+        {{/collection}}', {data:true})
+      
+      class SpecTest.CollectionEmptyTestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+        layout: SpecTest.layout
+        
+      SpecTest.layout = Mozart.Layout.create
+        rootElement: @ele
+        states: [
+          Mozart.Route.create
+            path: '/menu'
+            viewClass: SpecTest.CollectionEmptyTestView
+        ]
+      
+      SpecTest.controller = Mozart.MztObject.create({ items: [] })
+
+    afterEach ->
+      SpecTest.layout.release()
+      SpecTest.controller.release()
+
+    it "should not render when collection is empty", ->
+      runs ->
+        SpecTest.TestItem = Mozart.Model.create
+          modelName: 'TestItem'
+        SpecTest.TestItem.attributes
+          'name': 'string'
+
+        expect(SpecTest.TestItem.all().length).toEqual(0)
+
+        SpecTest.layout.bindRoot()
+        SpecTest.layout.navigateRoute('/menu')
+
+        SpecTest.controller.set('items',SpecTest.TestItem)
+
+      waits 50
+      
+      runs ->
+        expect(@container.html()).toContain('script')
+
+    it "should render when collection is not empty", ->
+      runs ->
+        SpecTest.TestItem = Mozart.Model.create
+          modelName: 'TestItem'
+        SpecTest.TestItem.attributes
+          'name': 'string'
+
+        SpecTest.TestItem.createFromValues({name:'five'})
+        expect(SpecTest.TestItem.all().length).toEqual(1)
+
+        SpecTest.layout.bindRoot()
+        SpecTest.layout.navigateRoute('/menu')
+
+        SpecTest.controller.set('items',SpecTest.TestItem)
+
+      waits 50
+      
+      runs ->
+        expect(@container.html()).toContain('five')
