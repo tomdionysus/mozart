@@ -89,13 +89,14 @@ exports.Collection = class Collection extends View
     obj = 
       content: instance
       parent: @
-      
+
     obj.tag = 'li' if @viewClass == View
-    obj.templateName = @viewClassTemplateName if @viewClassTemplateName?
-    obj.templateFunction = @viewClassTemplateFunction if @viewClassTemplateFunction?
-    obj.tag = @collectionTag if @collectionTag?
-    obj.classNames = @collectionClassNames if @collectionClassNames?
-    obj.tooltips = @tooltips if @tooltips?
+
+    obj.templateName = @viewClassTemplateName
+    obj.templateFunction = @viewClassTemplateFunction
+    obj.tag = @collectionTag
+    obj.classNames = @collectionClassNames
+    obj.tooltips = @tooltips
     view = @layout.createView @viewClass,obj
     @element.append(view.createElement())
     @itemViews[instance.id] = view
@@ -127,19 +128,19 @@ exports.Collection = class Collection extends View
     # Draw
     start = @pageCurrent * @pageSize
     count = 0
-    vcount = 0
-    dcount = 0
+    rows = 0
+    page = 0
     for item in @displayOrder
       unless @hidden[item.id]?
-        unless count<start or dcount>=@pageSize 
+        unless count<start or page>=@pageSize
           unless @itemViews[item.id]?
-            @createView(item) 
+            @createView(item)
           @element.append(@itemViews[item.id].element)
-          dcount++
-        vcount++
+          page++
+        rows++
       count++
-    @set("pageTotal", Math.ceil(vcount/@pageSize))
-    
+    @set("pageTotal", Math.ceil(rows/@pageSize))
+
     @set("pageCurrent", @pageTotal-1) if @pageCurrent > @pageTotal
 
 exports.BoundView = class BoundView extends View
