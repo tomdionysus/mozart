@@ -1,4 +1,4 @@
-# Mozart - A Clientside MVC Framework in CoffeeScript
+# Mozart - A Clientside Framework in CoffeeScript
 
 *Current Stable Version: 0.2.0, 1 September 2013*
 
