@@ -13,7 +13,7 @@ describe 'Mozart.Collection', ->
   describe 'renders collections of arrays and simple models', ->
 
     beforeEach ->
-      SpecTest.simpleViewFunction = Handlebars.compile('{{#collection collectionObserveBinding="SpecTest.controller.items"}}N:{{content.name}}{{/collection}}', {data:true})
+      SpecTest.simpleViewFunction = Handlebars.compile('{{#collection name="testCollection" collectionObserveBinding="SpecTest.controller.items"}}N:{{content.name}}{{/collection}}', {data:true})
       
       class SpecTest.CollectionTestView extends Mozart.View
         templateFunction: SpecTest.simpleViewFunction
@@ -91,6 +91,58 @@ describe 'Mozart.Collection', ->
         expect(@container.html()).toContain('six')
         expect(@container.html()).toContain('seven')
         expect(@container.html()).toContain('eight')
+
+    it "should correctly set position on subviews", ->
+      runs ->
+        SpecTest.TestItem = Mozart.Model.create
+          modelName: 'TestItem'
+
+        SpecTest.TestItem.attributes
+          'name': 'string'
+
+        @ti1 = SpecTest.TestItem.createFromValues({name:'five'})
+        @ti2 = SpecTest.TestItem.createFromValues({name:'six'})
+        @ti3 = SpecTest.TestItem.createFromValues({name:'seven'})
+
+        expect(SpecTest.TestItem.all().length).toEqual(3)
+
+        SpecTest.layout.bindRoot()
+        SpecTest.layout.navigateRoute('/customers')
+
+        SpecTest.controller.set('items',SpecTest.TestItem)
+
+      waits 50
+      
+      runs ->
+        c = SpecTest.layout.currentView.childView('testCollection')
+        expect(c.itemViews[@ti1.id].order).toEqual({total:3, position:0})
+        expect(c.itemViews[@ti2.id].order).toEqual({total:3, position:1})
+        expect(c.itemViews[@ti3.id].order).toEqual({total:3, position:2})
+
+      waits 50
+
+      runs ->
+        @ti4 = SpecTest.TestItem.createFromValues({name:'eight'})
+
+      waits 50
+
+      runs ->
+        c = SpecTest.layout.currentView.childView('testCollection')
+        expect(c.itemViews[@ti1.id].order).toEqual({total:4, position:0})
+        expect(c.itemViews[@ti2.id].order).toEqual({total:4, position:1})
+        expect(c.itemViews[@ti3.id].order).toEqual({total:4, position:2})
+        expect(c.itemViews[@ti4.id].order).toEqual({total:4, position:3})
+
+      runs ->
+        @ti1.destroy()
+
+      waits 50
+
+      runs ->
+        c = SpecTest.layout.currentView.childView('testCollection')
+        expect(c.itemViews[@ti2.id].order).toEqual({total:3, position:0})
+        expect(c.itemViews[@ti3.id].order).toEqual({total:3, position:1})
+        expect(c.itemViews[@ti4.id].order).toEqual({total:3, position:2})
 
   describe 'renders collections of models and submodels', ->
 
