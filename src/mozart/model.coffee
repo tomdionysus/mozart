@@ -9,7 +9,12 @@ Util = require './util'
 {ManyToManyPolyCollection} = require './model-manytomanypolycollection'
 {ManyToManyPolyReverseCollection} = require './model-manytomanypolyreversecollection'
 
-exports.Model = class Model extends MztObject
+# Model is the Mozart class that represents a data model and its store.
+# Models in Mozart are instances of Mozart.Model, not descendants, and records
+# in that datamodel are instances of Mozart.Instance, not the Mozart.Model they relate to.
+#
+# For more information, see http://www.mozart.io/model_demo
+class Model extends MztObject
   @idCount = 1
   @indexForeignKeys = true
   @models = {}
@@ -17,10 +22,9 @@ exports.Model = class Model extends MztObject
   toString: ->
     "Model: #{@.modelName}"
 
-  # Configuration
+  # Initialise the Model, checking modelName and setting up the instanceClass.
   init: ->
-    unless @modelName?
-      throw new Error "Model must have a modelName"
+    Util.warn "Model must have a modelName", @ unless @modelName?
 
     @records = {}
     @fks = {}
@@ -34,35 +38,53 @@ exports.Model = class Model extends MztObject
 
     @instanceClass = class ModelInstance extends Instance
 
+  # Reset the model by releasing all instances and clearing all indexes.
   reset: =>
-    for id, inst of @records
-      inst.release()
+    inst.release() for id, inst of @records
     @records = {}
     @rebuildAllIndexes()
 
+  # Add attributes to the Model
+  # @param [object] attrs A map of attribute names to types 
   attributes: (attrs)  =>
-    for k,v of attrs
-      @attrs[k] = v
+    @attrs[k] = v for k,v of attrs
 
+  # Find if the model has the specified attribute or foreign key
+  # @param [string] attrName The name of the attribute to check for
+  # @return [boolean] Return true if the attribute exists.
   hasAttribute: (attrName) ->
     (@attrs[attrName]?) or (@fks[attrName+"_id"]?)
 
+  # Find if the model has the specified relation
+  # @param [string] relationName The name of the relation to check for
+  # @return [boolean] Return true if the relation exists.
   hasRelation: (relationName) ->
     (@relations[relationName]?)
 
+  # Add foreign keys to the Model, indexing them if DataIndexForeignKeys is true
+  # @param [object] foreignKeys A map of foreign keys names to models
   foreignKeys: (foreignKeys) =>
     for k,v of foreignKeys
       @fks[k] = v
       if Model.DataIndexForeignKeys then @index k
 
+  # Add polymorphic foreign keys to the Model, indexing them if DataIndexForeignKeys 
+  # is true
+  # @param [object] foreignKeys A map of foreign keys names to models
   polyForeignKeys: (foreignKeys)  =>
     for k,v of foreignKeys
       @polyFks[k] = v
       if Model.DataIndexForeignKeys then @index k
 
   # belongsTo - General use belongsTo relation. The foreign key exists on 
-  # this the declaring model and points to the other model.
-  # - belongsTo is the opposite side of a hasOne or a hasMany relation
+  # this, the declaring model and points to the other model.
+  # Note: belongsTo is the opposite side of a hasOne or a hasMany relation
+  # If attribute or fkname are not supplied, the relation will be the snake case
+  # of the other model modelName and the foreign key will be this model's snake case name 
+  # suffixed with _id.
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] fkname (optional) The foreign key attribute name
   belongsTo: (model, attribute, fkname)  =>
     # get the attribute name and fk and add them to THIS model
     attribute ?= @toSnakeCase(model.modelName) unless attribute?
@@ -105,6 +127,12 @@ exports.Model = class Model extends MztObject
   # model and points to this the declaring model. Only a single record in the other
   # model is allow to point each record in this model
   # - hasOne is an opposite side of a belongsTo relation
+  # If attribute or fkname are not supplied, the relation will be the snake case
+  # of the other model modelName and the foreign key will be this model's snake case modelName 
+  # suffixed with _id.
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] fkname (optional) The foreign key attribute name on the other model
   hasOne: (model, attribute, fkname) ->
     attribute ?= @toSnakeCase(@modelName)
     fk = {}
@@ -146,6 +174,13 @@ exports.Model = class Model extends MztObject
   # this the declaring model and point to the other model when the
   # type field contains this model name.
   # - belongsToPoly is the opposite side of a hasManyPoly relation.
+  # If attribute, fkname or fktypename are not supplied, the relation will be the snake 
+  # case of the other model modelName and the foreign key and type will be that suffixed 
+  # with _id and _type
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] fkname (optional) The foreign key attribute name on this model
+  # @param [string] fktypename (optional) The foreign key type attribute name on this model
   belongsToPoly: (models, attribute, fkname, fktypename)  =>
     # get the attribute name and fk and add them to THIS model
     attribute ?= @toSnakeCase(model.modelName)
@@ -167,7 +202,7 @@ exports.Model = class Model extends MztObject
       if arguments.length > 0
         if value?
           if !_.contains(models,value.modelClass)
-            Util.error("Cannot assign a model of type {{value.modelClass.modelName}} to this belongsToPoly - allowed model types are "+models.join(', '))
+            Util.error("Cannot assign a model of type {value.modelClass.modelName} to this belongsToPoly - allowed model types are "+models.join(', '))
           @set(fkname,value.id)
           @set(fktypename,value.modelClass.modelName)
         else
@@ -200,6 +235,12 @@ exports.Model = class Model extends MztObject
   # hasMany - A general use hasMany relation where the foreign key
   # exists on the other model and points to this the declaring model
   # - hasMany is the opposite side of a belongsTo relation
+  # If attribute or fkname are not supplied, the relation will be the snake 
+  # case of the other model modelName and the foreign key will be this model's snake case 
+  # modelName suffixed with _id 
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] fkname (optional) The foreign key attribute name on the other model
   hasMany: (model, attribute, fkname) =>
     # get the attribute name and fk and add them to THAT model
     attribute ?= @toSnakeCase(model.modelName)
@@ -233,7 +274,7 @@ exports.Model = class Model extends MztObject
 
     @instanceClass.extend(obj)
 
-     # register to reset THAT fkey on delete of THIS model
+    # register to reset THAT fkey on delete of THIS model
     onDelete = (instance, options={}) ->
       for inst in model.findByAttribute(fkname, instance.id)
         inst.set(fkname,null)
@@ -245,6 +286,13 @@ exports.Model = class Model extends MztObject
   # exist on the other model and points to this the declaring model when 
   # the type field is this model name.
   # - hasManyPoly is the opposite side of a belongsToPoly relation 
+  # If attribute, thatFkAttr or thatTypeAttr are not supplied, the relation will be the 
+  # snake  case of the other model modelName and the foreign key and type will be this 
+  # model's snake case modelName suffixed with _id and _type
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] thatFkAttr (optional) The foreign key attribute name on this model
+  # @param [string] thatTypeAttr (optional) The foreign key type attribute name on this model
   hasManyPoly: (model, attribute, thatFkAttr, thatTypeAttr) ->
     attribute ?= @toSnakeCase(model.modelName) 
     thatFkAttr ?= attribute+"_id"
@@ -292,6 +340,16 @@ exports.Model = class Model extends MztObject
 
   # hasManyThrough is a general use many to many relation using a linktable
   # where the foreign keys on both sides exist on an intermediate link model.
+  #
+  # If attribute, thisFkAttr or thatFkAttr are not supplied, the relation will be the snake 
+  # case of the other model modelName, thisFkAttr will be this model's snake case 
+  # modelName suffixed with _id and thatFkAttr will be the other model's snake case 
+  # modelName suffixed with _id 
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [Model] linkModel The link model
+  # @param [string] thisFkAttr (optional) The foreign key attribute name for this model on the link model
+  # @param [string] thatFkAttr (optional) The foreign key attribute name for the other model on the link model
   hasManyThrough: (model, attribute, linkModel, thisFkAttr, thatFkAttr) =>
     # get the attribute name and fks and add them to the LINK model
     attribute ?= @toSnakeCase(model.modelName) 
@@ -343,8 +401,17 @@ exports.Model = class Model extends MztObject
   # hasManyThroughPoly is a polymorphic many-to-many relation where both foreign 
   # keys and the type exist on a linkmodel.
   # - hasManyThroughPoly is the opposite side of a hasManyThroughPolyReverse relation
+  # If attribute, thatFkAttr, thatTypeAttr or thatTypeAttr are not supplied, the relation 
+  # will be the snake case of the other model modelName, thisFkAttr will be this model's 
+  # snake case modelName suffixed with id, thatFkAttr and thatTypeAttr will be the other 
+  # model's snake_case with _id and _type.
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] thisFkAttr (optional) The foreign key attribute name for this model on the link model
+  # @param [string] thatFkAttr (optional) The foreign key attribute name for the other model on the link model
+  # @param [string] thatTypeAttr (optional) The foreign key type attribute name for the other model on the link model
   hasManyThroughPoly: (model, attribute, linkModel, thisFkAttr, thatFkAttr, thatTypeAttr) ->
-    # get the attribute name, fk, id and type fields and add them to the LINK model
+    # get the attribute name, fk, id and type fields and add them to the link model
     attribute ?= @toSnakeCase(model.modelName) 
     thisFkAttr ?= @toSnakeCase(@modelName+"_id")
     thatFkAttr ?= attribute+"_id"
@@ -404,6 +471,15 @@ exports.Model = class Model extends MztObject
   # hasManyThroughPolyReverse is a polymorphic many-to-many relation where both foreign 
   # keys and the type exist on a linkmodel.
   # - hasManyThroughPolyReverse is the opposite side of a hasManyThroughPoly relation
+  # If attribute, thatFkAttr, thatTypeAttr or thatTypeAttr are not supplied, the relation 
+  # will be the snake case of the other model modelName, thisFkAttr will be this model's 
+  # snake case modelName suffixed with id, thatFkAttr and thatTypeAttr will be the other 
+  # model's snake_case with _id and _type.
+  # @param [Model] model The other model
+  # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
+  # @param [string] thisFkAttr (optional) The foreign key attribute name for this model on the link model
+  # @param [string] thatFkAttr (optional) The foreign key attribute name for the other model on the link model
+  # @param [string] thatTypeAttr (optional) The foreign key type attribute name for the other model on the link model
   hasManyThroughPolyReverse: (model, attribute, linkModel, thisFkAttr, thatFkAttr, thatTypeAttr) ->
     attribute ?= @toSnakeCase(model.modelName) 
     thisFkAttr ?= @toSnakeCase(@modelName+"_id")
@@ -438,18 +514,31 @@ exports.Model = class Model extends MztObject
 
   # Methods
 
+  # Get all Instances in the Model as an array
+  # @return [array] Returns an array of all model Instances in this Model
   all: =>
     _(@records).values()
 
+  # Get all Instances in the Model as a map of id => Instance
+  # @return [object] Returns a map of all ids to Instances in this Model
   allAsMap: =>
     @records
 
+  # Get the total count of Instances
+  # @return [integer] Return the total count of Instances
   count: =>
     _(@records).keys().length
 
+  # Get the Instance with the specified id
+  # @param [string] id The Instance id to find
+  # @return [Mozart.Instance] The Instance with the specified id, or NULL.
   findById: (id) =>
     return undefined unless id?
     @records[id]
+
+  # Find all Instances with the specified array of ids
+  # @param [array] ids An array of model instance ids
+  # @return [array] An array of all found Instances, which may be smaller than ids.
 
   findAll: (ids) =>
     lst = []
@@ -458,17 +547,20 @@ exports.Model = class Model extends MztObject
         lst.push @records[id] 
     lst
 
-  # select() returns an array of Instances, one for each record in a
-  # query defined by the supplied callback. The callback should take
-  # one parameter, which is the raw object in the datastore.
-  # Caveat: Do not modify the object passed in any way, indexing/events
-  # will suffer accordingly if you do so. 
+  # Get an array of Instances, one for each Instance in a query defined by the supplied 
+  # callback. The callback should take one parameter, which is the raw Instance in the 
+  # datastore.
+  # Caveat: Do not modify the objects passed in the callback.
+  # @param [function] callback The function to filter the Instances, which should return true to select the instance passed.
+  # @return [array] An array of selected instances 
   select: (callback) =>
     @findAll @selectIds callback
 
   # selectIds() returns an array of record ids, one for each record in
   # a query defined by the supplied callback. The callback function has
   # the same definition and constraints as select() above.
+  # @param [function] callback The function to filter the Instances, which should return true to select the instance passed.
+  # @return [array] An array of selected instances 
   selectIds: (callback) =>
     res = []
     for id, rec of @records
@@ -479,9 +571,8 @@ exports.Model = class Model extends MztObject
   # selectAsMap is the same as selectIds() except it returns an
   # object instead of an array, with the id as the key and the record 
   # as the value 
-  # i.e. if select() returns [0,4,64,2]
-  # selectAsMap() returns { 0:<record(0)>, 4:<record(4)>,
-  # 64:<record(64)>, 2:<record(2)> }
+  # @param [function] callback The function to filter the Instances, which should return true to select the instance passed.
+  # @return [object] An map of the selected id -> Instance pairs
   selectAsMap: (callback) =>
     res = {}
     for id, rec of @records
@@ -489,11 +580,20 @@ exports.Model = class Model extends MztObject
         res[id] = rec
     res
 
+  # Get all instances where attribute is equal to a value as an array, using
+  # indexes if available
+  # @param [string] attribute The attribute in which to search
+  # @param [variant] value The value to search for
+  # @return [array] An array of Instances found
   findByAttribute: (attribute, value) =>
     query = {}
     query[attribute] = value
     @findByAttributes query
 
+  # Get all instances where a set of attributes are equal to a set of values as an array, 
+  # using indexes if available
+  # @param [object] attribute A map of attributes -> values to search for.
+  # @return [array] An array of Instances found
   findByAttributes: (query) =>
     res = []
     for attributeName, value of query
@@ -512,9 +612,17 @@ exports.Model = class Model extends MztObject
       out = out2
     _(out).values()
 
+  # Find if an Instance with the specified id exists
+  # @param [string] id The id to search for
+  # @return [boolean] Returns true if the Instance exists
   exists: (id) =>
     @records[id]?
 
+  # Instantiate but do not save an Instance of this model with the supplied attributes and 
+  # values. The returned instance is not yet in the Model data store and cannot be used with 
+  # indexes.
+  # @param [object] data A map of attributes -> values to initialise the new Instance with.
+  # @return [Mozart.Instance] The new instance
   initInstance: (data) =>
     inst = @_getInstance()
     for k, v of @attrs
@@ -525,14 +633,27 @@ exports.Model = class Model extends MztObject
     inst.set('id',@_generateId())
     inst
 
+  # Create and save an Instance of this model with the supplied attributes and 
+  # values.
+  # @param [object] data A map of attributes -> values to initialise the new Instance with.
+  # @return [Mozart.Instance] The new instance 
   createFromValues: (values) =>
     inst = @initInstance(values)
     inst.save()
     inst
 
+  # Load the supplied instance from an external datastore (ajax, localstorage) by publishing
+  # a load event on this model.
+  # @param [Mozart.Instance] instance The instance to load
+  # @param [object] options The options to pass to the load callback
   loadInstance: (instance, options={}) =>
     @publish 'load', instance
 
+  # Create an existing instance by adding it to the model data store and indexing it, and
+  # saving it to an external datastore if configured by publishing a create event on this model.
+  # @param [Mozart.Instance] instance The instance to create
+  # @param [object] options The options to pass to the load callback
+  # @return [Mozart.Instance] The instance that has been created
   createInstance: (instance, options={}) =>
     id = instance.id
     if @exists(id)
@@ -543,6 +664,11 @@ exports.Model = class Model extends MztObject
     @publish 'change', instance, options unless options.disableModelChangeEvent
     instance
 
+  # Update an existing instance by publishing an update event on this model.
+  # Please note this method does not modify the Instance, it just notifies any
+  # configured external datastore that the model has been saved.
+  # @param [Mozart.Instance] instance The instance to update
+  # @param [object] options The options to pass to the update callback
   updateInstance: (instance, options={}) =>
     @publish 'update', instance, options unless options.disableModelUpdateEvent
     @publish 'change', instance, options unless options.disableModelChangeEvent
@@ -550,6 +676,12 @@ exports.Model = class Model extends MztObject
     unless @exists(id)
       Util.error "updateInstance: ID does not exist",'collection',"model",@name,"id",id
 
+  # Destroy an existing instance by publishing an destroy event on this model.
+  # Please note this method does not release the Instance, it just removes it from
+  # the model data store and indexes and notifies any configured external datastore 
+  # that the model has been destroyed. 
+  # @param [Mozart.Instance] instance The instance to destory
+  # @param [object] options The options to pass to the destroy callback
   destroyInstance: (instance, options={}) =>
     id = instance.id
     unless @exists(id)
@@ -559,27 +691,36 @@ exports.Model = class Model extends MztObject
     @publish 'destroy', instance, options unless options.disableModelDestroyEvent
     @publish 'change', instance, options unless options.disableModelChangeEvent
 
-  # INTERNAL Helpers
-
   # toSnakeCase translates CapsCase or camelCase to snake_case
   # Example:
   # toSnakeCase('People') = 'people'
   # toSnakeCase('PeopleTags') = 'people_tags'
   # toSnakeCase('methodName ') = 'method_name'
+  # @param [string] name The original name
+  # @return [string] The snake_case name
   toSnakeCase: (name) =>
     x = name.replace /[A-Z]{1,1}/g, (match) =>
       "_"+match.toLowerCase()
     x.replace /^_/, ''
 
+  # Return a new, blank Instance configured with the model's modelClass
+  # @return [Mozart.Instance] The new Instance
+  # @private
   _getInstance: =>
     @instanceClass.create
       modelClass: @
 
-  _generateId: () =>
+  # Return a unique Instance client id and increment the global counter.
+  # @return [string] A new client id of the format c-*n* where *n* is the global count.
+  # @private
+  _generateId: =>
     "c-"+(Model.idCount++)
 
-  # Indexing
-
+  # Create an index on the specified attribute of the specified type and options.
+  # If the index already exists, rebuild it.
+  # @param [string] attrName The attribute to index
+  # @param [string] type (optional) The type of the index, default is 'map'
+  # @param [object] options (optional) The index options if required
   index: (attrName, type='map', options) =>
     unless @indexes[attrName]?
       idxClass = DataIndex.getIndexClassType(type)
@@ -597,34 +738,57 @@ exports.Model = class Model extends MztObject
     else
       @rebuildIndex(attrName)
 
+  # Find if the Model has an index on the specified attribute
+  # @param [string] attrName The attribute of the index
+  # @return [boolean] Return true if an index exists on the attribute
   hasIndex: (attrName) ->
     (@indexes[attrName]?)
 
+  # Get the index id map for the specified attribute and value.
+  # @param [string] attrName The attribute of the index
+  # @param [variant] value The value of the attribute
+  # @return [object] A map of id -> Instance where attribute is equal to value
   getIndexFor: (attrName, value) ->
     throw new Error "Model.rebuildIndex: Index #{attrName} does not exist" unless @indexes[attrName]?
     @indexes[attrName].load(value)
 
+  # Update an index with a given attribute name when an Instance has changed.
+  # @param [string] attrName The attribute of the index
+  # @param [Mozart.Instance] record The Instance that has changed
+  # @param [variant] oldValue The previous value of the attribute in the Instance
+  # @param [variant] newValue The new value of the attribute in the Instance
   updateIndex: (attrName, record, oldValue, newValue) ->
     throw new Error "Model.rebuildIndex: Index #{attrName} does not exist" unless @indexes[attrName]?
     @indexes[attrName].update(record, oldValue, newValue)
 
+  # Add a specified Instance to all defined indexes
+  # @param [Mozart.Instance] record The Instance to be added
   addToIndexes: (record) ->
     for attrName, index of @indexes
       index.add(record)
 
+  # Remove a specified Instance from all defined indexes
+  # @param [Mozart.Instance] record The Instance to be removed
   removeFromIndexes: (record) ->
     for attrName, index of @indexes
       index.remove(record)
 
+  # Rebuild an index with a given attribute name
+  # @param [string] attrName The attribute of the index to rebuild
   rebuildIndex: (attrName) ->
     throw new Error "Model.rebuildIndex: Index #{attrName} does not exist" unless @indexes[attrName]?
     @indexes[attrName].rebuild()
 
+  # Drop an index with a given attribute name
+  # @param [string] attrName The attribute of the index to drop
   dropIndex: (attrName) ->
     delete @indexes[attrName]
     delete @['findBy'+attrName]
     delete @['getBy'+attrName]
 
+  # Rebuild all defined indexes
   rebuildAllIndexes: ->
     for attrName in _(@indexes).keys()
       @rebuildIndex(attrName)
+
+exports.Model = Model

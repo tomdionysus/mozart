@@ -1,12 +1,20 @@
 {MztObject} = require './object'
 Util = require './util'
 
-exports.Router = class Router extends MztObject
+# Router is the base class for Mozart classes capable of responding to routes.
+#
+# The router has two modes, specified by the useHashRouting property:
+# * Popstate Routing (default)
+# * Hash routing 
+class Router extends MztObject
 
+  # Initialise the Router
   init: =>
     @routes = {}
     @useHashRouting ?= false
 
+  # Start responding to route changes on either popstate or hash changes, depending
+  # on the value of useHashRouting.
   start: =>
     if (@useHashRouting)
       $(window).on('hashchange', @onHashChange)
@@ -16,6 +24,7 @@ exports.Router = class Router extends MztObject
       $(window).on("popstate", @onPopState)
       @onPopState()
 
+  # Stop responding to route changes.
   stop: =>
     if (@useHashRouting)
       $(window).off('hashchange',@onHashChange)
@@ -23,6 +32,10 @@ exports.Router = class Router extends MztObject
       $('body').off("click", 'a', @onNavigationEvent)
       $(window).off("popstate", @onPopState)
 
+  # Register a route with the specified parameters
+  # @param [string] route The route URL fragment, which can include parameters (/route/:parameter)
+  # @param [function] callback The callback function to call when the route is triggered
+  # @param [object] data (optional) Data to pass to the callback function
   register: (route, callback, data) =>
     Util.log('routes',"registering route", route, data)
     tokens = route.split('/')
@@ -41,11 +54,17 @@ exports.Router = class Router extends MztObject
       callback: callback
       data: data
 
+  # When in Hash routing mode, this is called on the onHashChange window event.
+  # Parse the hash route and navigate to it.
   onHashChange: =>
     url = window.location.hash
     url = url.substr(1) if url.length>0 and url[0]=='#'
     @navigateRoute(url)
 
+  # When in popstate routing mode (the default), this is called on click events
+  # on anchor (<a>) elements in the DOM. Detect if this is a route on our domain,
+  # port and protocol, and navigate to it if we handle that route.
+  # @param [DOMEvent] event The DOM event object
   onNavigationEvent: (event) =>
     # Return if route not on us.
     return if event.target.host!=document.location.host or
@@ -56,9 +75,14 @@ exports.Router = class Router extends MztObject
       history.pushState({one:1},null,event.target.href)
       event.preventDefault()
 
+  # When in popstate routing mode (the default), this is called on the popstate 
+  # window event. Parse the url route and navigate to it.
   onPopState: =>
     @navigateRoute window.location.pathname
     
+  # Navigate to the specified urlPath if there is a registered route that matches it.
+  # Publish the noroute event if the route is not found.
+  # @param [string] urlPath The URL path of the route to navigate to.
   navigateRoute: (urlPath) =>
     @isNavigating = true
 
@@ -86,14 +110,21 @@ exports.Router = class Router extends MztObject
     @publish('noroute',window.location.hash)
     false
 
+  # Release this Router, stopping listening to routing events.
   release: =>
     @stop()
     super
 
+  # Escape a string to be used in a regular expression.
+  # @param [string] str The string to escape
+  # @return [string] The escaped string
+  # @private
   _escForRegEx: (str) ->
     str.replace('\\','\\\\')
     escchars = "./+{}()*"
     for i in escchars
       str = str.replace(i,'\\'+i)
     str
+
+exports.Router = Router
 

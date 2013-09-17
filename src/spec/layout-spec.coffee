@@ -1,7 +1,7 @@
 Test = {}
 
 describe 'Mozart.Route', ->
-  it 'should not throw when instatiated normally', ->
+  it 'should not throw when instantiated normally', ->
     expect( ->
       Mozart.Route.create
         path: "/"

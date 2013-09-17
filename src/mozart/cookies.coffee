@@ -1,7 +1,12 @@
 {MztObject} = require './object'
 
-exports.Cookies = class Cookies extends MztObject
+# The Cookies class is an interface to browser cookies.
+class Cookies extends MztObject
 
+  # Set a value in the cookie
+  # @param [string] The name of the cookie
+  # @param [variant] The value of the cookie
+  # @param [object] A map of options for the cookie, e.g. [date] 'expires'
   @setCookie: (name, value, options) ->
     options = options or {}
     unless document.cookie == undefined
@@ -25,8 +30,9 @@ exports.Cookies = class Cookies extends MztObject
       # Set the cookie
       document.cookie = nameValue + path + domain + maxAge + expires + secure
 
-    this
-
+  # Get a value from the cookie
+  # @param [string] The name of the cookie
+  # @return [variant] The value of the cookie
   @getCookie: (name) ->
     cookies = document.cookie.split /;\s*/
     for cookie in cookies
@@ -36,6 +42,8 @@ exports.Cookies = class Cookies extends MztObject
         return decodeURIComponent(currentParts[1])
     return null
 
+  # Remove the cookie with the given name
+  # @param [string] The name of the cookie
   @removeCookie: (name) ->
     date = new Date()
     date.setTime(date.getTime() - 1)
@@ -43,5 +51,10 @@ exports.Cookies = class Cookies extends MztObject
       expires: date
     this
 
+  # Check if a given cookie exists
+  # @param [string] The name of the cookie
+  # @return [boolean] Returns true if the cookie exists.
   @hasCookie: (name) ->
     @getCookie(name) != null
+
+exports.Cookies = Cookies
