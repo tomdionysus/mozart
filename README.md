@@ -12,6 +12,7 @@ Please see http://mozart.io for documentation, examples etc.
 
 ## 0.2.1
 
+* Added ```position``` object to views rendered with a collection
 * Added findBy<fieldname>, getBy<fieldname> methods on indexed fields
 * Added displayWhenEmpty to collection
 

@@ -139,10 +139,10 @@ exports.Collection = class Collection extends View
     for item in @displayOrder
       unless @hidden[item.id]?
         unless count<start or page>=@pageSize
-          unless @itemViews[item.id]?
-            @createView(item)
+          @createView(item) unless @itemViews[item.id]?
           @element.append(@itemViews[item.id].element)
           page++
+        @itemViews[item.id].set('order',{total: @displayOrder.length, position:rows})
         rows++
       count++
     @set("pageTotal", Math.ceil(rows/@pageSize))
