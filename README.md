@@ -14,6 +14,7 @@ Please see http://mozart.io for documentation, examples etc.
 
 * Added findBy<fieldname>, getBy<fieldname> methods on indexed fields
 * Added displayWhenEmpty to collection
+* Added warning when Layout cannot bind to rootElement
 
 ## 0.2.0
 
