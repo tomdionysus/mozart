@@ -27,6 +27,7 @@ exports.Layout = class Layout extends Router
 
   bindRoot: =>
     @rootEl = $(@rootElement)[0]
+    Util.warn "Cannot find root element for layout", @rootEl unless @rootEl?
 
   resetRoute: =>
     @viewRenderQueue = []
