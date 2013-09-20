@@ -14,16 +14,17 @@ class Instance extends MztObject
   init: ->
     @_type = @modelClass.modelName
 
-  # Load the instance from one of the backend stores (ajax, localstorage) passing
-  # the specified options by calling the loadInstance method on the Model.
+  # If a backend store (ajax, localstorage) is defined, load the instance from that 
+  # backend store by calling the loadInstance method with the specified options on 
+  # the Model.
   # @param [object] options The options to pass to the Model loadInstance method.
   load: (options) =>
     options ?= {}
     @modelClass.loadInstance(@, options)
 
-  # Save the instance to one of the backend stores (ajax, localstorage) passing
-  # the specified options, by calling either createInstance or updateInstance on
-  # the Model, depending on whether the instance exists in the model.
+  # If a backend store (ajax, localstorage) is defined save the instance to that
+  # store by calling either createInstance or updateInstance on the Model with the 
+  # specified options, depending on whether the instance exists in the model.
   # @param [object] options The options to pass to the relevant Model method.
   save: (options) =>
     options ?= {}

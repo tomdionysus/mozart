@@ -33,7 +33,7 @@ class Router extends MztObject
       $(window).off("popstate", @onPopState)
 
   # Register a route with the specified parameters
-  # @param [string] route The route URL fragment, which can include parameters (/route/:parameter)
+  # @param [string] route The route URL fragment, which can include parameters ('/route/:parameter')
   # @param [function] callback The callback function to call when the route is triggered
   # @param [object] data (optional) Data to pass to the callback function
   register: (route, callback, data) =>

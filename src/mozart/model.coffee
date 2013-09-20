@@ -13,6 +13,10 @@ Util = require './util'
 # Models in Mozart are instances of Mozart.Model, not descendants, and records
 # in that datamodel are instances of Mozart.Instance, not the Mozart.Model they relate to.
 #
+# Mozart Models and relations are conceptually similar to actual database tables, in that
+# The Model is the table, Instances are rows, and all relations are handled by foreign key
+# attributes and their values.
+#
 # For more information, see http://www.mozart.io/model_demo
 class Model extends MztObject
   @idCount = 1
@@ -86,7 +90,7 @@ class Model extends MztObject
   # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
   # @param [string] fkname (optional) The foreign key attribute name
   belongsTo: (model, attribute, fkname)  =>
-    # get the attribute name and fk and add them to THIS model
+    # get the attribute name and fk and add them to this model
     attribute ?= @toSnakeCase(model.modelName) unless attribute?
     fk = {}
     fkname ?= attribute+"_id"
@@ -96,7 +100,7 @@ class Model extends MztObject
     fkn[fkname] = model
     @foreignKeys fkn
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     obj = {}
 
     obj[attribute] = (value) ->
@@ -115,7 +119,7 @@ class Model extends MztObject
     @instanceClass.extend(obj)
 
     Xthis = @
-    # register to reset THIS fkey on delete of THAT model
+    # register to reset this fkey on delete of that model
     onDelete = (instance) ->
       for inst in model.findByAttribute(fkname, instance.id)
         inst.set(fkname,null)
@@ -182,7 +186,7 @@ class Model extends MztObject
   # @param [string] fkname (optional) The foreign key attribute name on this model
   # @param [string] fktypename (optional) The foreign key type attribute name on this model
   belongsToPoly: (models, attribute, fkname, fktypename)  =>
-    # get the attribute name and fk and add them to THIS model
+    # get the attribute name and fk and add them to this model
     attribute ?= @toSnakeCase(model.modelName)
     fk = {}
     fkname ?= attribute+"_id"
@@ -195,7 +199,7 @@ class Model extends MztObject
     fkn[fkname] = fktypename
     @polyForeignKeys fkn
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     obj = {}
 
     obj[attribute] = (value, options) ->
@@ -219,7 +223,7 @@ class Model extends MztObject
 
     Xthis = @
 
-    # register to reset THIS fkey on delete of THAT model
+    # register to reset this fkey on delete of the other model
     onDelete = (instance, options={}) ->
       query = {}
       query[fkname] = instance.id
@@ -242,7 +246,7 @@ class Model extends MztObject
   # @param [string] attribute (optional) The relation name - the method on each instance to get the relation object
   # @param [string] fkname (optional) The foreign key attribute name on the other model
   hasMany: (model, attribute, fkname) =>
-    # get the attribute name and fk and add them to THAT model
+    # get the attribute name and fk and add them to the other model
     attribute ?= @toSnakeCase(model.modelName)
     fk = {}
     fkname ?= @toSnakeCase(@modelName+"_id")
@@ -257,7 +261,7 @@ class Model extends MztObject
       otherModel: model
       foreignKeyAttribute: fkname
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     Xthis = @
     obj = {}
     obj[attribute] = (value) ->
@@ -274,7 +278,7 @@ class Model extends MztObject
 
     @instanceClass.extend(obj)
 
-    # register to reset THAT fkey on delete of THIS model
+    # register to reset the other fkey on delete of this model
     onDelete = (instance, options={}) ->
       for inst in model.findByAttribute(fkname, instance.id)
         inst.set(fkname,null)
@@ -312,7 +316,7 @@ class Model extends MztObject
       foreignKeyAttribute: thatFkAttr
       foreignModelTypeAttribute: thatTypeAttr
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     Xthis = @
     @instanceClass::[attribute] = (value) ->
       if arguments.length > 0
@@ -371,7 +375,7 @@ class Model extends MztObject
       foreignKeyAttribute: thisFkAttr
       otherModelForeignKeyAttribute: thatFkAttr
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     Xthis = @
 
     @instanceClass::[attribute] = (value) ->
@@ -436,7 +440,7 @@ class Model extends MztObject
       otherModelForeignKeyAttribute: thatFkAttr
       otherModelModelTypeAttribute: thatTypeAttr
 
-    # add the property function to THIS model instanceClass
+    # add the property function to this model instanceClass
     Xthis = @
     @instanceClass::[attribute] = (value) ->
       if arguments.length > 0
@@ -524,8 +528,8 @@ class Model extends MztObject
   allAsMap: =>
     @records
 
-  # Get the total count of Instances
-  # @return [integer] Return the total count of Instances
+  # Get the total count of Instances in the Model datastore.
+  # @return [integer] Return the total count of Instances in the Model datastore.
   count: =>
     _(@records).keys().length
 
@@ -548,9 +552,16 @@ class Model extends MztObject
     lst
 
   # Get an array of Instances, one for each Instance in a query defined by the supplied 
-  # callback. The callback should take one parameter, which is the raw Instance in the 
-  # datastore.
-  # Caveat: Do not modify the objects passed in the callback.
+  # callback. The callback will be called for each instance in the datastore, with the
+  # Instance being passed as the first parameter, and should return true or false to select
+  # that instance:
+  # @example
+  #   isIdOdd(instance) -> 
+  #     return (instance.id mod 2 == 0)
+  #
+  #   oddPeople = App.People.select(@isIdOdd)
+  #
+  # Caveat: Do not modify the objects passed in the callback, this will confuse the iterator. If you need to modify a set of Instances, get them using select, then iterate them and modify.
   # @param [function] callback The function to filter the Instances, which should return true to select the instance passed.
   # @return [array] An array of selected instances 
   select: (callback) =>
@@ -643,14 +654,15 @@ class Model extends MztObject
     inst
 
   # Load the supplied instance from an external datastore (ajax, localstorage) by publishing
-  # a load event on this model.
+  # a load event on this model, which external datastores subscribe to when registered.
   # @param [Mozart.Instance] instance The instance to load
   # @param [object] options The options to pass to the load callback
   loadInstance: (instance, options={}) =>
     @publish 'load', instance
 
   # Create an existing instance by adding it to the model data store and indexing it, and
-  # saving it to an external datastore if configured by publishing a create event on this model.
+  # saving it to an external datastore if configured by publishing a create event on this 
+  # model, which external datastores subscribe to when registered.
   # @param [Mozart.Instance] instance The instance to create
   # @param [object] options The options to pass to the load callback
   # @return [Mozart.Instance] The instance that has been created
@@ -664,7 +676,9 @@ class Model extends MztObject
     @publish 'change', instance, options unless options.disableModelChangeEvent
     instance
 
-  # Update an existing instance by publishing an update event on this model.
+  # Update an existing instance by publishing an update event on this model, which 
+  # external datastores subscribe to when registered.
+  #
   # Please note this method does not modify the Instance, it just notifies any
   # configured external datastore that the model has been saved.
   # @param [Mozart.Instance] instance The instance to update
@@ -676,7 +690,9 @@ class Model extends MztObject
     unless @exists(id)
       Util.error "updateInstance: ID does not exist",'collection',"model",@name,"id",id
 
-  # Destroy an existing instance by publishing an destroy event on this model.
+  # Destroy an existing instance by publishing an destroy event on this model, which 
+  # external datastores subscribe to when registered.
+  #
   # Please note this method does not release the Instance, it just removes it from
   # the model data store and indexes and notifies any configured external datastore 
   # that the model has been destroyed. 

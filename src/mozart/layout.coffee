@@ -5,6 +5,15 @@ Util = require './util'
 # and maintaining route state. Each large section of a Mozart app that responds to 
 # routes should have its own layout, and all layouts should be registered with the
 # DOMManager.
+#
+# Take the example of a sidebar, topbar and main panel. The topbar never changes and 
+# does not respond to routing. The sidebar can change but only programatically, and 
+# also does not respond to routes. The main panel is URL dynamic and responds to all 
+# routes. This is three layouts.
+#
+# Layout is largely responsible for rendering, which is one of the most complex parts
+# of the codebase. Please see http://www.mozart.io/guides/understanding_rendering for
+# more details.
 exports.Layout = class Layout extends Router
   
   # Initiaise the Layout, checking and registering all states (routes)

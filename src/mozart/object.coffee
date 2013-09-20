@@ -32,13 +32,13 @@ class MztObject
   @OBSERVE: 1
   @SYNC: 0
 
-  # Include the supplied object
+  # Include the supplied object, that is, copy all of its properties and methods onto this object.
   # @param [object] obj Include all properties and functions from the supplied object on all instances of this class
   # @return [class] Returns this class
   @include: (obj) ->
     @[key] = value for key, value of obj
 
-  # Extend this class with supplied object
+  # Extend this class with supplied object that is, copy all of its properties and methods onto this class.
   # @param [object] obj Include all properties and functions from the supplied object on the prototype of this class
   # @return [class] Returns this class
   @extend: (obj) ->
@@ -63,8 +63,9 @@ class MztObject
     inst.init?()
     inst
 
-  # Instantiate an instance of this class. Do not use new directly - please call the [create] method.
-  #   WARNING: MztObjects instantiated using JS/CS new will not have bindings, lookups and events correctly initialized. Please use the [create] method on the class instead.
+  # Instantiate an instance of this class. Never use JavaScript ```new``` directly with MztObject or its descendants,
+  # please call the [create] method. MztObjects instantiated using JS/CS ```new``` will not have bindings, lookups and events
+  # correctly initialized. Please use the [create] method on the class instead.
   constructor: ->
     @_mozartId = Util.getId()
 

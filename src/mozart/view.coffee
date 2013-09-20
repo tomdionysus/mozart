@@ -54,7 +54,7 @@ class View extends MztObject
     x = @_find(@newElement,id)
     x
 
-  # Find the element with the specified in another element, even if it is not currently
+  # Find the element with the specified id in another element, even if it is not currently
   # on the DOM.
   # @param [DOMElement] ele The element in which to search
   # @param [string] id The id to search for
@@ -97,6 +97,9 @@ class View extends MztObject
   afterRender: ->
 
   # postRender is called by the layout after ALL views have been rendered.
+  #
+  # Do not override postRender. Override afterRender in your View class to run view code
+  # after rendering.
   postRender: =>
     return if @released
     @createDomBinds()
@@ -150,9 +153,10 @@ class View extends MztObject
       p = p.parent
     false
 
-  # Release this view by removing all DOM bindings, removing it from its parent's
-  # children (if not a root view), releasing all its children, removing its element
-  # in the DOM if currently rendered, and calling releaseView on its layout.
+  # Release this view: remove all DOM bindings, remove it from its parent's
+  # children (if this view is not a layout level view), release all its children, remove 
+  # its element from the DOM if this view is currently rendered, and calling releaseView 
+  # on its layout.
   release: =>
     return if @released
     Util.log('views',@layout,"releasing view #{@id}")
