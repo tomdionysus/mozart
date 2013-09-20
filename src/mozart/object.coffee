@@ -23,6 +23,8 @@ Util = require './util'
 # All MztObjects support events in a pub/sub manner, using subscribe(), subscribeOnce(),
 # publish() and unsubscribe().
 #
+# For more information, please see http://www.mozart.io/guides/understanding_events
+#
 # In addition, all MztObjects publish an event 'change:*propertyName*' when a property is
 # set(), where propertyName is the name of the property that has been set.
 #
