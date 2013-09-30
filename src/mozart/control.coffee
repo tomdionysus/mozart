@@ -1,12 +1,7 @@
 {View} = require './view'
 
-exports.Control = class Control extends View
+# Control is a the base class for reusable Mozart controls.
+class Control extends View
   idPrefix: 'control'
 
-  error: (help) ->
-    @help = help
-    @errorState = true
-    
-  afterRender: =>
-    if @errorState
-      @element.addClass('error')
+exports.Control = Control

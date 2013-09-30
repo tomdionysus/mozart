@@ -1,12 +1,31 @@
 {View} = require './view'
 Util = require './util'
 
-exports.Collection = class Collection extends View
+# Collection is the the view class for the Mozart collection handlebars helper - a view
+# that renders a collection of other views, one for each data item in its collection property.
+#
+# The collection property can be:
+# * A Mozart Model
+# * A Mozart Relation object
+# * An Array of objects
+#
+# If an array is supplied, collection expects an array of objects, each of which must have a 
+# at least one unique property, specified by @idField.
+#
+# For more information, see http://mozart.io/collection_demo
+class Collection extends View
 
+  # The default tag for a collection is 'ul'
   tag: 'ul'
+
+  # Collections do not have a template
   skipTemplate: true
 
-  # Initialize the collection View
+  # The field to use as a unique identifier, default 'id'
+  idField: 'id'
+
+  # Set up the collection, detecting the collection type, setting up filters, sorts, paging
+  # and subscribing 
   init: =>
     super
     Util.log('collection','init')
@@ -35,15 +54,18 @@ exports.Collection = class Collection extends View
     @subscribe('change:collection', @afterRender)
     @subscribe('change:method', @afterRender)
     @collection.subscribe?('change', @afterRender)
-      
+  
+  # Release the collection view, unsubscribing from collection changes if supported.
   release: =>
     @collection.unsubscribe?('change', @afterRender)
     super
 
+  # Refresh the data and sync the view contents
   afterRender: =>
     @refresh()
     @draw()
 
+  # Refresh the data from the collection, creating and destroying item views as required.
   refresh: =>
     Util.log('collection','refresh')
 
@@ -58,13 +80,13 @@ exports.Collection = class Collection extends View
           @dataSet = @collection[@method+"AsMap"]()
         else if Util.isFunction(@collection[@method])
           # ..that has a <all> function
-          @dataSet[item.id] = item for item in @collecton[@method]()
+          @dataSet[item[@idField]] = item for item in @collecton[@method]()
       else if Util.isFunction(@collection)
         # Function that returns an array
-        @dataSet[item.id] = item for item in @collection()
+        @dataSet[item[@idField]] = item for item in @collection()
       else if Util.isArray(@collection)
         # Is an Array
-        @dataSet[item.id] = item for item in @collection
+        @dataSet[item[@idField]] = item for item in @collection
       else 
         Util.error("Collection: #{typeof @collection} can't be iterated")
 
@@ -83,7 +105,7 @@ exports.Collection = class Collection extends View
 
   # Create a View for a data item
   #
-  # @param instance [Mozart.DataInstance] The content for the new view
+  # @param instance [Mozart.Instance] The content for the new view
   createView: (instance) =>
     Util.log('collection','createView', instance,'layout',@layout.rootElement)
 
@@ -100,10 +122,11 @@ exports.Collection = class Collection extends View
     obj.tooltips = @tooltips
     view = @layout.createView @viewClass,obj
     @element.append(view.createElement())
-    @itemViews[instance.id] = view
+    @itemViews[instance[@idField]] = view
     @addView(view)
     @layout.queueRenderView(view)
     
+  # Detach all views and reinsert them according to the current filter and sort.
   draw: =>
     #Detach All
     for id, view of @itemViews
@@ -124,7 +147,7 @@ exports.Collection = class Collection extends View
         for field in @filterAttribute.split(',')
           vl = Util.getPath(item, field)
           hide = hide and (vl.toString().toLowerCase().indexOf(st) == -1) if vl?
-          @hidden[item.id] = 1 if hide 
+          @hidden[item[@idField]] = 1 if hide 
 
     # Empty?
     unless @displayWhenEmpty
@@ -137,10 +160,10 @@ exports.Collection = class Collection extends View
     rows = 0
     page = 0
     for item in @displayOrder
-      unless @hidden[item.id]?
+      unless @hidden[item[@idField]]?
         unless count<start or page>=@pageSize
           @createView(item) unless @itemViews[item.id]?
-          @element.append(@itemViews[item.id].element)
+          @element.append(@itemViews[item[@idField]].element)
           page++
         @itemViews[item.id].set('order',{total: @displayOrder.length, position:rows})
         rows++
@@ -149,12 +172,19 @@ exports.Collection = class Collection extends View
 
     @set("pageCurrent", @pageTotal-1) if @pageCurrent > @pageTotal
 
-exports.BoundView = class BoundView extends View
+# BoundView is a View that watches for changes on its content property and redraws
+# itself with every change.
+class BoundView extends View
 
+  # Initialise the BoundView and subscribe to changes on content.
   init: ->
     super
     @content.subscribe 'change', @redraw
 
+  # Release the BoundView and unsubscribe to changes on content.
   release: ->
     @content.unsubscribe 'change', @redraw
     super
+
+exports.Collection = Collection
+exports.BoundView = BoundView

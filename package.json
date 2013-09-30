@@ -9,7 +9,8 @@
     "url": "git@github.com:bigcommerce/mozart.git"
   },
   "scripts": {
-    "start": "./node_modules/grunt-cli/bin/grunt run",
+    "build": "./node_modules/grunt-cli/bin/grunt build",
+    "package": "./node_modules/grunt-cli/bin/grunt package",
     "test": "./node_modules/grunt-cli/bin/grunt test"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "grunt-contrib-jasmine": "0.4.x",
     "grunt-contrib-uglify": "0.1.x",
     "grunt-lib-legacyhelpers": "0.1.x",
-    "browserify": "1.16.x"
+    "browserify": "1.16.x",
+    "codo": "latest"
   }
 }

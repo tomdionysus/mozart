@@ -1,16 +1,14 @@
-# Mozart.HTTP
-#
-# - XHR abstraction layer
-
 {MztObject} = require './object'
 Util = require './util'
 
-exports.HTTP = class HTTP extends MztObject
+# The HTTP class abstracts jQuery AJAX.
+class HTTP extends MztObject
 
-  #
-  # ERROR HANDLER
-  #
-  
+  # Handle an error status from the server
+  # @param jqXHR [jQueryXHR] The jQuery XHR object
+  # @param status [string] The jQuery status string
+  # @param context [object] The jQuery event context
+  # @param errorThrown [exception] The jQuery exception
   handleError: (jqXHR, status, context, errorThrown) ->
     switch jqXHR.status
       when 401
@@ -20,10 +18,13 @@ exports.HTTP = class HTTP extends MztObject
       else
         Util.error('Model.Ajax.handleError', jqXHR, status, errorThrown)
 
-  #
-  # XHR HANDLER
-  #
-  
+  # Prepare data for _request
+  # @param url [string] The HTTP url
+  # @param httpType [string] The HTTP verb
+  # @param data [object] The data for the call
+  # @param options [object] The options for the call
+  # @param callbacks [object] A map of callback functions
+  # @private
   _xhrHandler: (url, httpType, data, options, callbacks) ->
     if @support.ajax
     
@@ -56,13 +57,15 @@ exports.HTTP = class HTTP extends MztObject
 
       Util.log('Mozart.HTTP', 'AJAX is not supported. Exiting')
 
-  #
-  # REQUEST HANDLER
-  # - Called by XHR Handler
-  # - Can be overridden if you want to use another library or framework
-  # - Defaults to jQuery with a JSON content type
-  #
- 
+  # Make a jQuery AJAX call
+  # Called by XHR Handler, can be overridden if you want to use another library or 
+  # framework, defaults to jQuery with a JSON content type
+  # @param url [string] The HTTP url
+  # @param httpType [string] The HTTP verb
+  # @param data [object] The data for the call
+  # @param options [object] The options for the call
+  # @param callbacks [object] A map of callback functions
+  # @private
   _request: (url, httpType, data, options, callbacks) ->
     $.ajax
       url: url
@@ -75,10 +78,7 @@ exports.HTTP = class HTTP extends MztObject
       dataType: options.dataType || 'json'
       contentType: options.contentType || 'application/json'
 
-  #
-  # HTTP SUPPORT
-  #
-
+  # Support subobject
   support:
     ajax: ->
       try
@@ -89,10 +89,9 @@ exports.HTTP = class HTTP extends MztObject
       @ajax and ("withCredentials" of new XMLHttpRequest())
 
 
-  #
-  # HTTP GET
-  #
-
+  # Send a HTTP GET request
+  # @param url [string] The HTTP url
+  # @param arg [object] An object containing the data, options and callbacks for this request
   get: (url, arg) ->
     arg       = arg || {}
     data      = arg.data || {}
@@ -100,10 +99,9 @@ exports.HTTP = class HTTP extends MztObject
     callbacks = arg.callbacks || {}
     @_xhrHandler url, 'GET', data, options, callbacks
     
-  #
-  # HTTP POST
-  #
-
+  # Send a HTTP POST request
+  # @param url [string] The HTTP url
+  # @param arg [object] An object containing the data, options and callbacks for this request
   post: (url, arg) ->
     arg       = arg || {}
     data      = arg.data || {}
@@ -111,10 +109,9 @@ exports.HTTP = class HTTP extends MztObject
     callbacks = arg.callbacks || {}
     @_xhrHandler url, 'POST', data, options, callbacks
     
-  #
-  # HTTP PUT
-  #
-
+  # Send a HTTP PUT request
+  # @param url [string] The HTTP url
+  # @param arg [object] An object containing the data, options and callbacks for this request
   put: (url, arg) ->
     arg       = arg || {}
     data      = arg.data || {}
@@ -123,10 +120,9 @@ exports.HTTP = class HTTP extends MztObject
     @_xhrHandler url, 'PUT', data, options, callbacks
     
 
-  #
-  # HTTP DELETE
-  #
-
+  # Send a HTTP DELETE request
+  # @param url [string] The HTTP url
+  # @param arg [object] An object containing the data, options and callbacks for this request
   delete: (url, arg) ->
     arg       = arg || {}
     data      = arg.data || {}
@@ -134,4 +130,5 @@ exports.HTTP = class HTTP extends MztObject
     callbacks = arg.callbacks || {}
     @_xhrHandler url, 'DELETE', data, options, callbacks
 
+exports.HTTP = HTTP
 

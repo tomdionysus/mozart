@@ -8,14 +8,27 @@
 
 Please see http://mozart.io for documentation, examples etc.
 
+# Testing, Building, Packaging
+
+```grunt test``` will build and test Mozart
+```grunt build``` will build Mozart into ./mozart.js
+```grunt package``` will build and minify Mozart into ./mozart.min.js and write the current version to ./VERSION
+
+# CoDo Documentation
+
+```./node_modules/codo/bin/codo src/mozart``` will generate the CoDo documentation in ./doc
+
 # Changelog
 
 ## 0.2.1
 
+* Added ```Mozart.Service``` class 
+* Added ```displayWhenEmpty``` to collection
+* Added ```idField``` to collection
 * Added ```position``` object to views rendered with a collection
-* Added findBy<fieldname>, getBy<fieldname> methods on indexed fields
-* Added displayWhenEmpty to collection
+* Added ```findBy<fieldname>```, ```getBy<fieldname>``` methods on indexed fields
 * Added warning when Layout cannot bind to rootElement
+* Added Codo Docs to all classes
 
 ## 0.2.0
 
