@@ -1,0 +1,70 @@
+body, 
+#header, #body, #footer,
+#content .tags {
+	font-family: "Open Sans", sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #222;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: #454545;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+	font-weight: normal;
+}
+
+a,
+a:link,
+a:visited,
+#menu a,
+#menu a:link,
+#menu a:visited,
+#content a,
+#content a:link,
+#content a:visited,
+#content.list a {
+	color: #9b4263;
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease; 
+}
+
+a:focus,
+a:hover,
+a:active,
+#menu a:focus,
+#menu a:hover,
+#menu a:active,
+#content a:focus,
+#content a:hover,
+#content a:active,
+#content.list a:focus,
+#content.list a:hover,
+#content.list a:active,
+#content.list.tree ul li small {
+	color: black; 
+}
+
+#content.list ul li.stripe {
+	background: #d9d9d9;
+}
+#content .bound,
+#content.list ul li:hover,
+#content.list ul li.stripe:hover {
+	color: black; 
+	background: #ffb000;
+}
+
+#content .bound {
+	border: 1px solid #e1e1e8;
+	border-radius: 5px;
+}
+
+#content .method_details p.signature,
+#content ul.summary .signature, 
+#content .properties .signature {
+	background: #f7f7f9;
+	border: 1px solid #e1e1e8;
+	border-radius: 5px;
+	color: #222;
+}
