@@ -1,6 +1,6 @@
 Mozart =
-  version: "0.2.0"
-  versionDate: new Date 2013, 8, 1
+  version: "0.3.0"
+  versionDate: new Date 2013, 9, 4
   Plugins: {}
 
 Mozart[name] = method for own name, method of module for module in [
