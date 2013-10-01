@@ -17,7 +17,18 @@ class View extends MztObject
     @namedChildViews = {}
     @valid = true
     @domBindings = {}
-    @display ?= true
+
+    if !@display? 
+      if @hide? 
+        @display = !@hide
+      else
+        @display = true if !@hide
+
+    if !@hide? 
+      if @display? 
+        @hide = !@display
+      else
+        @hide = false if !@display
 
     @parent.addView(@) if @parent?
 
@@ -29,6 +40,8 @@ class View extends MztObject
     Util.log('views',"view #{@id} init")
 
     @subscribe('change:display', @redraw)
+    @subscribe 'change:hide', => @set 'display', !@hide
+    @subscribe 'change:display', => @set 'hide', !@display
 
     @createAutoActions() unless @disableAutoActions
     @createHtmlAttrBindings() unless @disableHtmlAttributes

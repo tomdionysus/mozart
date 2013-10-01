@@ -26,6 +26,7 @@ Please see http://mozart.io for documentation, examples etc.
 * Added ```displayWhenEmpty``` to collection
 * Added ```idField``` to collection
 * Added ```position``` object to views rendered with a collection
+* Added ```hide``` property to views
 * Added ```findBy<fieldname>```, ```getBy<fieldname>``` methods on indexed fields
 * Added warning when Layout cannot bind to rootElement
 * Added Codo Docs to all classes
