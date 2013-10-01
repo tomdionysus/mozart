@@ -23,7 +23,7 @@ Please see http://mozart.io for documentation, examples etc.
 ## 0.3.0
 
 * Mozart Now follows semantic versioning
-* Added ```Mozart.Service``` class 
+* Added ```Mozart.Resource``` class 
 * Added ```displayWhenEmpty``` to collection
 * Added ```idField``` to collection
 * Added ```position``` object to views rendered with a collection

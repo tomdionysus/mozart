@@ -31,7 +31,7 @@ Mozart[name] = method for own name, method of module for module in [
   require "./view"
   require "./dynamic-view"
   require "./cookies"
-  require "./service"
+  require "./resource"
 ]
 
 if global.module?
