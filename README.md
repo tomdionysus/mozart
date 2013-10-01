@@ -2,7 +2,7 @@
 
 *Current Stable Version: 0.2.0, 1 September 2013*
 
-*Development Version: 0.2.1, 1 October 2013*
+*Development Version: 0.3.0, 4 October 2013*
 
 [![Build Status](https://secure.travis-ci.org/bigcommerce/mozart.png?branch=master)](http://travis-ci.org/bigcommerce/mozart)
 
@@ -20,8 +20,9 @@ Please see http://mozart.io for documentation, examples etc.
 
 # Changelog
 
-## 0.2.1
+## 0.3.0
 
+* Mozart Now follows semantic versioning
 * Added ```Mozart.Service``` class 
 * Added ```displayWhenEmpty``` to collection
 * Added ```idField``` to collection
