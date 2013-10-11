@@ -291,3 +291,54 @@ describe 'Mozart.View', ->
       @view.publish('testEvent', {one:1})
 
       expect(tm).not.toHaveBeenCalled()
+
+    it 'should have display and hide defaults', ->
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create()
+
+      expect(@view.display).toEqual(true)
+      expect(@view.hide).toEqual(false)
+
+    it 'should set hide when display set in init', ->
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+        display: false
+
+      @view = SpecTest.TestView.create()
+
+      expect(@view.hide).toEqual(true)
+
+    it 'should set display when hide set in init', ->
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+        hide: true
+
+      @view = SpecTest.TestView.create()
+
+      expect(@view.display).toEqual(false)
+
+    it 'should set display when hide set', ->
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create()
+
+      @view.set('display', true)
+      expect(@view.hide).toEqual(false)
+
+      @view.set('display', false)
+      expect(@view.hide).toEqual(true)
+
+    it 'should set hide when display set', ->
+      class SpecTest.TestView extends Mozart.View
+        templateFunction: SpecTest.simpleViewFunction
+
+      @view = SpecTest.TestView.create()
+
+      @view.set('hide', true)
+      expect(@view.display).toEqual(false)
+
+      @view.set('hide', false)
+      expect(@view.display).toEqual(true)
