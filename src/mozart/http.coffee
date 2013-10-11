@@ -67,16 +67,21 @@ class HTTP extends MztObject
   # @param callbacks [object] A map of callback functions
   # @private
   _request: (url, httpType, data, options, callbacks) ->
-    $.ajax
-      url: url
-      type: httpType
-      success: callbacks.success
-      error: callbacks.error
-      complete: callbacks.complete
-      data: data
-      context: options.context || @
-      dataType: options.dataType || 'json'
-      contentType: options.contentType || 'application/json'
+
+    options = _.clone(options)
+    options.url ?= url
+    options.type ?= httpType
+    options.data ?= data
+    options.context ?= @
+    options.dataType ?= 'json'
+    options.contentType ?= 'application/json'
+
+    if callbacks?
+      options.success ?= callbacks.success 
+      options.error ?= callbacks.error
+      options.complete ?= callbacks.complete
+
+    $.ajax options
 
   # Support subobject
   support:
