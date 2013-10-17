@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                     return acc2 + ";window.i18n['" + namespace + "']['" + key + "']=" + mf.precompile(mf.parse(locales[locale][namespace][key]));
 
                 }, ";window.i18n['" + namespace + "']={};");
-            }, "(function(){window.i18n={};var MessageFormat={locale:{}};" + src) + "})();";
+            }, "(function(){window.i18n=window.i18n||{};var MessageFormat={locale:{}};" + src) + "})();";
             grunt.log.ok();
 
             grunt.log.write("Writing " + locale + " locale to " + opts.dest + "/" + locale + ".js...");
