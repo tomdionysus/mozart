@@ -31,6 +31,7 @@ Please see http://mozart.io for documentation, examples etc.
 * Added ```findBy<fieldname>```, ```getBy<fieldname>``` methods on indexed fields
 * Added warning when Layout cannot bind to rootElement
 * Added Codo Docs to all classes
+* Added extended options capability to verbs on```Mozart.HTTP```
 
 ## 0.2.0
 
