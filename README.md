@@ -1,8 +1,8 @@
 # Mozart - A Clientside Framework in CoffeeScript
 
-*Current Stable Version: 0.2.0, 1 September 2013*
+*Current Stable Version: 0.3.0, 21 October 2013*
 
-*Development Version: 0.3.0, 4 October 2013*
+*Development Version: 0.4.0, November 2013*
 
 [![Build Status](https://secure.travis-ci.org/bigcommerce/mozart.png?branch=master)](http://travis-ci.org/bigcommerce/mozart)
 
@@ -19,6 +19,8 @@ Please see http://mozart.io for documentation, examples etc.
 ```./node_modules/codo/bin/codo src/mozart``` will generate the CoDo documentation in ./doc
 
 # Changelog
+
+## 0.4.0
 
 ## 0.3.0
 
