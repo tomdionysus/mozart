@@ -104,8 +104,6 @@ class Resource extends MztObject
   create: (instance, callback, error_callback) =>
     return if instance[@clientApiField]?
     @http.post @url,
-      options:
-        type: 'json'
       data: JSON.stringify(@mapClientData(instance))
       callbacks:
         success: (data) =>
@@ -127,8 +125,6 @@ class Resource extends MztObject
   update: (instance, callback, error_callback)  =>
     return unless instance[@clientApiField]?
     @http.put @url+'/'+instance[@clientApiField],
-      options:
-        type: 'json'
       data: JSON.stringify(@mapClientData(instance))
       callbacks:
         success: (data) =>
