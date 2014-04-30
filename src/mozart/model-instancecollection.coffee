@@ -21,6 +21,18 @@ class InstanceCollection extends MztObject
   all: ->
     []
 
+  # Get the numeric sum of the supplied field in all records
+  sum: (attribute) =>
+    sum = 0
+    sum += inst[attribute] for inst in @all()
+    sum
+
+  # Get the numeric average of the supplied field in all records
+  average: (attribute) =>
+    count = @count()
+    return undefined if count == 0
+    @sum(attribute) / count
+
   # Subscribe to create, update and destroy events on the supplied models
   # @param [array] models The array of models to subscribe to events on
   subscribeEvents: (models) =>

@@ -533,6 +533,19 @@ class Model extends MztObject
   count: =>
     _(@records).keys().length
 
+  # Get the numeric sum of the supplied field in all records
+  sum: (attribute) =>
+    sum = 0
+    for id, inst of @records
+      sum += inst[attribute] 
+    sum
+
+  # Get the numeric average of the supplied field in all records
+  average: (attribute) =>
+    count = @count()
+    return undefined if count == 0
+    @sum(attribute) / count
+
   # Get the Instance with the specified id
   # @param [string] id The Instance id to find
   # @return [Mozart.Instance] The Instance with the specified id, or NULL.
